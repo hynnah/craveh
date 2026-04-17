@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Account - Craveh</title>
+  <link rel="stylesheet" href="../css/app.css">
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="container header-container">
+      <div class="logo">
+        <h1>Craveh</h1>
+      </div>
+      <nav class="nav">
+        <a href="menu.html" class="nav-link">Menu</a>
+        <a href="history.html" class="nav-link">History</a>
+        <a href="checkout.html" class="nav-link">
+          Checkout
+          <span id="cart-count" class="cart-badge">0</span>
+        </a>
+        <a href="account.html" class="nav-link active" id="account-link">Account</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <div class="container">
+      <!-- Login/Signup Form -->
+      <div id="auth-form" class="auth-container">
+        <div class="form-card">
+          <h2 id="auth-title">Login</h2>
+          <form id="login-signup-form">
+            <div id="name-field" class="form-group" style="display: none;">
+              <label for="name-input">Name</label>
+              <input type="text" id="name-input">
+            </div>
+            <div class="form-group">
+              <label for="email-input">Email</label>
+              <input type="email" id="email-input" required>
+            </div>
+            <div class="form-group">
+              <label for="password-input">Password</label>
+              <input type="password" id="password-input" required>
+            </div>
+            <p id="auth-error" class="error-message"></p>
+            <button type="submit" class="btn btn-primary btn-block" id="auth-submit-btn">Login</button>
+          </form>
+          <p class="auth-toggle">
+            <span id="auth-toggle-text">Don't have an account? </span>
+            <button type="button" id="auth-toggle-btn" class="link-btn">Sign Up</button>
+          </p>
+        </div>
+      </div>
+
+      <!-- User Profile (shown when logged in) -->
+      <div id="user-profile" class="profile-container" style="display: none;">
+        <div class="profile-card">
+          <div class="profile-header">
+            <div class="profile-avatar">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+                <circle cx="12" cy="7" r="4"></circle>
+              </svg>
+            </div>
+            <div class="profile-info">
+              <h2 id="profile-name"></h2>
+              <p id="profile-email"></p>
+            </div>
+          </div>
+          <div class="profile-details">
+            <div class="detail-row">
+              <span class="detail-label">Account ID</span>
+              <span id="profile-id"></span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">Member Since</span>
+              <span id="profile-since"></span>
+            </div>
+          </div>
+          <button id="logout-btn" class="btn btn-destructive btn-block">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="../js/common.js"></script>
+  <script src="../js/account.js"></script>
+</body>
+</html>

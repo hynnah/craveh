@@ -14,6 +14,7 @@ function setupAuthForm() {
   const form = document.getElementById('login-signup-form');
   const toggleBtn = document.getElementById('auth-toggle-btn');
   const logoutBtn = document.getElementById('logout-btn');
+  const addressForm = document.getElementById('profile-address-form');
   
   toggleBtn.addEventListener('click', () => {
     isLogin = !isLogin;
@@ -34,6 +35,7 @@ function setupAuthForm() {
   });
   
   logoutBtn.addEventListener('click', handleLogout);
+  addressForm.addEventListener('submit', handleSaveAddress);
 }
 
 function updateAuthForm() {
@@ -158,8 +160,69 @@ function updateAccountPage() {
     document.getElementById('profile-id').textContent = user.id;
     const profileSince = user.created_at ? new Date(user.created_at) : new Date();
     document.getElementById('profile-since').textContent = profileSince.toLocaleDateString();
+
+    document.getElementById('profile-phone').value = user.phone || '';
+    const addr = user.default_address || {};
+    document.getElementById('profile-street').value = addr.street || '';
+    document.getElementById('profile-city').value = addr.city || '';
+    document.getElementById('profile-state').value = addr.state || '';
+    document.getElementById('profile-zip').value = addr.zip || '';
+    document.getElementById('profile-building').value = addr.building || '';
+    document.getElementById('profile-floor').value = addr.floor || '';
+    document.getElementById('profile-apt').value = addr.apt || '';
+    document.getElementById('profile-landmark').value = addr.landmark || '';
   } else {
     authForm.style.display = 'block';
     userProfile.style.display = 'none';
+  }
+}
+
+async function handleSaveAddress(e) {
+  e.preventDefault();
+
+  const errorEl = document.getElementById('profile-address-error');
+  const successEl = document.getElementById('profile-address-success');
+  const btn = document.getElementById('save-address-btn');
+  errorEl.textContent = '';
+  successEl.textContent = '';
+
+  const phone = document.getElementById('profile-phone').value.trim();
+  if (phone && !/^\d{7,15}$/.test(phone)) {
+    errorEl.textContent = 'Phone must be 7–15 digits.';
+    return;
+  }
+
+  const defaultAddress = {
+    street: document.getElementById('profile-street').value.trim(),
+    city: document.getElementById('profile-city').value.trim(),
+    state: document.getElementById('profile-state').value.trim(),
+    zip: document.getElementById('profile-zip').value.trim(),
+    building: document.getElementById('profile-building').value.trim(),
+    floor: document.getElementById('profile-floor').value.trim(),
+    apt: document.getElementById('profile-apt').value.trim(),
+    landmark: document.getElementById('profile-landmark').value.trim()
+  };
+
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Saving…';
+
+  try {
+    const response = await fetch('update_profile.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ phone: phone || null, default_address: defaultAddress })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.success) {
+      throw new Error(result.error || 'Save failed');
+    }
+    setCurrentUser(result.user);
+    successEl.textContent = 'Saved successfully!';
+    setTimeout(() => successEl.textContent = '', 3000);
+  } catch (error) {
+    errorEl.textContent = error.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save';
   }
 }

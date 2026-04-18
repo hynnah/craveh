@@ -5,11 +5,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   renderCheckout();
 });
 
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
 function renderCheckout() {
   const checkoutContent = document.getElementById('checkout-content');
   const user = getCurrentUser();
-  
-  // Check if user is logged in
+
   if (!user) {
     checkoutContent.innerHTML = `
       <div class="empty-state">
@@ -24,8 +29,7 @@ function renderCheckout() {
     `;
     return;
   }
-  
-  // Check if cart is empty
+
   if (cart.length === 0) {
     checkoutContent.innerHTML = `
       <div class="empty-state">
@@ -41,28 +45,28 @@ function renderCheckout() {
     `;
     return;
   }
-  
-  // Show checkout form
+
   const total = getCartTotal();
   checkoutContent.innerHTML = `
     <h2 class="page-title">Checkout</h2>
-    
+
     <div class="checkout-section">
       <h3>Order Summary</h3>
       <div>
         ${cart.map(item => `
           <div class="checkout-item">
             <div class="checkout-item-info">
-              <span>${item.name}</span>
+              <img src="${item.image || ''}" alt="${escapeHtml(item.name)}" class="checkout-item-image">
+              <span>${escapeHtml(item.name)}</span>
             </div>
             <div class="checkout-item-controls">
               <div class="quantity-controls">
-                <button class="quantity-btn" data-id="${item.id}" data-action="decrease">-</button>
+                <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="decrease">-</button>
                 <span class="quantity-display">${item.quantity}</span>
-                <button class="quantity-btn" data-id="${item.id}" data-action="increase">+</button>
+                <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="increase">+</button>
               </div>
               <span class="checkout-total-amount" style="min-width: 70px; text-align: right;">$${(item.price * item.quantity).toFixed(2)}</span>
-              <button class="btn-remove" data-id="${item.id}" title="Remove item">
+              <button class="btn-remove" data-id="${escapeHtml(item.id)}" title="Remove item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -77,21 +81,62 @@ function renderCheckout() {
         </div>
       </div>
     </div>
-    
+
     <div class="checkout-section">
       <h3>Delivery Information</h3>
       <form id="checkout-form">
         <div class="form-group">
-          <label for="address-input">Delivery Address</label>
-          <textarea id="address-input" rows="3" placeholder="Enter your delivery address" required></textarea>
+          <label for="street-input">Street Address</label>
+          <input type="text" id="street-input" placeholder="123 Main St" required>
+          <p class="field-error" id="street-error"></p>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-group-flex">
+            <label for="city-input">City</label>
+            <input type="text" id="city-input" placeholder="City" required>
+            <p class="field-error" id="city-error"></p>
+          </div>
+          <div class="form-group form-group-flex">
+            <label for="state-input">State</label>
+            <input type="text" id="state-input" placeholder="State" required>
+            <p class="field-error" id="state-error"></p>
+          </div>
+          <div class="form-group form-group-flex">
+            <label for="zip-input">ZIP Code</label>
+            <input type="text" id="zip-input" placeholder="10001" required>
+            <p class="field-error" id="zip-error"></p>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="building-input">Building Name <span class="label-optional">(optional)</span></label>
+          <input type="text" id="building-input" placeholder="e.g. Sunrise Apartments">
+        </div>
+        <div class="form-row">
+          <div class="form-group form-group-flex">
+            <label for="floor-input">Floor <span class="label-optional">(optional)</span></label>
+            <input type="text" id="floor-input" placeholder="e.g. 3rd">
+          </div>
+          <div class="form-group form-group-flex">
+            <label for="apt-input">Apt / Suite / Unit <span class="label-optional">(optional)</span></label>
+            <input type="text" id="apt-input" placeholder="e.g. 4B">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="landmark-input">Landmark <span class="label-optional">(optional)</span></label>
+          <input type="text" id="landmark-input" placeholder="e.g. Near Central Park, opposite the bank">
+        </div>
+        <div class="form-group">
+          <label for="notes-input">Delivery Notes <span class="label-optional">(optional)</span></label>
+          <textarea id="notes-input" rows="2" placeholder="Gate code, ring doorbell, etc."></textarea>
         </div>
         <div class="form-group">
           <label for="phone-input">Phone Number</label>
-          <input type="tel" id="phone-input" placeholder="Enter your phone number" required>
+          <input type="tel" id="phone-input" placeholder="Enter your phone number" value="${escapeHtml(user.phone || '')}" required>
+          <p class="field-error" id="phone-error"></p>
         </div>
       </form>
     </div>
-    
+
     <div class="checkout-section">
       <h3>Payment Method</h3>
       <div class="payment-method-card">
@@ -102,59 +147,143 @@ function renderCheckout() {
         </div>
       </div>
     </div>
-    
+
     <button class="btn btn-primary btn-block" id="place-order-btn">
       Place Order - $${total.toFixed(2)}
     </button>
   `;
-  
-  // Setup quantity controls
-  const quantityBtns = checkoutContent.querySelectorAll('.quantity-btn');
-  quantityBtns.forEach(btn => {
+
+  checkoutContent.querySelectorAll('.quantity-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       const itemId = btn.getAttribute('data-id');
       const action = btn.getAttribute('data-action');
       const item = cart.find(i => i.id === itemId);
-      
       if (item) {
-        if (action === 'increase') {
-          updateCartQuantity(itemId, item.quantity + 1);
-        } else if (action === 'decrease') {
-          updateCartQuantity(itemId, item.quantity - 1);
-        }
-        renderCheckout(); // Re-render after update
+        if (action === 'increase') updateCartQuantity(itemId, item.quantity + 1);
+        else if (action === 'decrease') updateCartQuantity(itemId, item.quantity - 1);
+        renderCheckout();
       }
     });
   });
-  
-  // Setup remove buttons
-  const removeBtns = checkoutContent.querySelectorAll('.btn-remove');
-  removeBtns.forEach(btn => {
+
+  checkoutContent.querySelectorAll('.btn-remove').forEach(btn => {
     btn.addEventListener('click', () => {
       const itemId = btn.getAttribute('data-id');
       if (confirm('Remove this item from your cart?')) {
         removeFromCart(itemId);
-        renderCheckout(); // Re-render after removal
+        renderCheckout();
       }
     });
   });
-  
-  // Setup order button
+
   document.getElementById('place-order-btn').addEventListener('click', handlePlaceOrder);
+
+  prefillFromSavedAddress(user);
 }
 
-function handlePlaceOrder() {
-  const address = document.getElementById('address-input').value.trim();
+function prefillFromSavedAddress(user) {
+  const addr = user.default_address;
+  if (!addr) return;
+  const fields = {
+    'street-input': addr.street,
+    'city-input': addr.city,
+    'state-input': addr.state,
+    'zip-input': addr.zip,
+    'building-input': addr.building,
+    'floor-input': addr.floor,
+    'apt-input': addr.apt,
+    'landmark-input': addr.landmark
+  };
+  for (const [id, val] of Object.entries(fields)) {
+    if (val) document.getElementById(id).value = val;
+  }
+}
+
+function validateCheckoutFields() {
+  const fields = {
+    street: document.getElementById('street-input').value.trim(),
+    city: document.getElementById('city-input').value.trim(),
+    state: document.getElementById('state-input').value.trim(),
+    zip: document.getElementById('zip-input').value.trim(),
+    phone: document.getElementById('phone-input').value.trim()
+  };
+
+  const errors = {
+    street: document.getElementById('street-error'),
+    city: document.getElementById('city-error'),
+    state: document.getElementById('state-error'),
+    zip: document.getElementById('zip-error'),
+    phone: document.getElementById('phone-error')
+  };
+
+  Object.values(errors).forEach(el => el.textContent = '');
+  let valid = true;
+
+  if (!fields.street || fields.street.length < 5) {
+    errors.street.textContent = 'Enter a valid street address.';
+    valid = false;
+  }
+  if (!fields.city || fields.city.length < 2) {
+    errors.city.textContent = 'City is required.';
+    valid = false;
+  }
+  if (!fields.state) {
+    errors.state.textContent = 'State is required.';
+    valid = false;
+  }
+  if (!fields.zip || !/^\d{4,10}$/.test(fields.zip)) {
+    errors.zip.textContent = 'Enter a valid ZIP code.';
+    valid = false;
+  }
+  if (!fields.phone || !/^\d{7,15}$/.test(fields.phone)) {
+    errors.phone.textContent = 'Enter a valid phone number (7–15 digits).';
+    valid = false;
+  }
+
+  return valid;
+}
+
+
+function buildAddress() {
+  const street = document.getElementById('street-input').value.trim();
+  const apt = document.getElementById('apt-input').value.trim();
+  const city = document.getElementById('city-input').value.trim();
+  const state = document.getElementById('state-input').value.trim();
+  const zip = document.getElementById('zip-input').value.trim();
+  const building = document.getElementById('building-input').value.trim();
+  const floor = document.getElementById('floor-input').value.trim();
+  const landmark = document.getElementById('landmark-input').value.trim();
+  const notes = document.getElementById('notes-input').value.trim();
+
+  let address = street;
+  if (apt) address += ', ' + apt;
+  address += ', ' + city + ', ' + state + ' ' + zip;
+  const extras = [building, floor, landmark].filter(Boolean).join(', ');
+  if (extras) address += ' [' + extras + ']';
+  if (notes) address += ' (' + notes + ')';
+  return address;
+}
+
+function setOrderButtonLoading(loading) {
+  const btn = document.getElementById('place-order-btn');
+  if (loading) {
+    btn.disabled = true;
+    btn.dataset.originalText = btn.textContent;
+    btn.innerHTML = '<span class="spinner"></span> Placing Order…';
+  } else {
+    btn.disabled = false;
+    btn.textContent = btn.dataset.originalText || 'Place Order';
+  }
+}
+
+async function handlePlaceOrder() {
+  if (!validateCheckoutFields()) return;
+
+  const address = buildAddress();
   const phone = document.getElementById('phone-input').value.trim();
   const user = getCurrentUser();
-  
-  if (!address || !phone) {
-    alert('Please fill in all delivery information');
-    return;
-  }
-  
+
   const order = {
-    id: Date.now().toString(),
     userId: user.id,
     items: cart.map(item => ({
       menuItemId: item.id,
@@ -162,42 +291,32 @@ function handlePlaceOrder() {
       price: item.price,
       quantity: item.quantity
     })),
-    total: getCartTotal(),
     address,
-    phone,
-    status: 'pending',
-    createdAt: new Date().toISOString()
+    phone
   };
-  
-  sendOrderToServer(order)
-    .then(() => {
-      clearCart();
-      showOrderSuccess();
-    })
-    .catch((error) => {
-      alert('Order could not be sent to server: ' + error.message);
-    });
+
+  setOrderButtonLoading(true);
+  try {
+    await sendOrderToServer(order);
+    clearCart();
+    showOrderSuccess();
+  } catch (error) {
+    setOrderButtonLoading(false);
+    document.getElementById('street-error').textContent = 'Order failed: ' + error.message;
+  }
 }
 
 async function sendOrderToServer(order) {
   const response = await fetch('save_order.php', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(order)
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(response.status + ' ' + response.statusText + '\n' + text);
-  }
-
   const result = await response.json();
-  if (!result.success) {
+  if (!response.ok || !result.success) {
     throw new Error(result.error || 'Server rejected the order');
   }
-
   return result;
 }
 

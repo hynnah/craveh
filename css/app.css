@@ -654,6 +654,73 @@ body {
   justify-content: center;
 }
 
+/* Checkout item image */
+.checkout-item-image {
+  width: 48px;
+  height: 48px;
+  border-radius: 6px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+/* Inline field errors */
+.field-error {
+  color: var(--destructive);
+  font-size: 0.8rem;
+  min-height: 1.2rem;
+  margin-top: 0.25rem;
+}
+
+/* Form row for side-by-side fields */
+.form-row {
+  display: flex;
+  gap: 1rem;
+}
+
+.form-group-flex {
+  flex: 1;
+  min-width: 0;
+}
+
+.label-optional {
+  color: var(--muted-foreground);
+  font-weight: 400;
+}
+
+.profile-section-title {
+  font-size: 1.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.profile-section-desc {
+  color: var(--muted-foreground);
+  font-size: 0.875rem;
+  margin-bottom: 1.25rem;
+}
+
+.success-message {
+  color: #16a34a;
+  font-size: 0.8rem;
+  min-height: 1.2rem;
+  margin-bottom: 0.5rem;
+}
+
+/* Spinner */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-container {
@@ -694,5 +761,10 @@ body {
   .checkout-item-controls {
     width: 100%;
     justify-content: space-between;
+  }
+
+  .form-row {
+    flex-direction: column;
+    gap: 0;
   }
 }

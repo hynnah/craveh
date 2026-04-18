@@ -83,7 +83,8 @@ if (!$insertStmt) {
     exit;
 }
 
-$insertStmt->bind_param('sss', $input['email'], $input['password'], $input['name']);
+$hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
+$insertStmt->bind_param('sss', $input['email'], $hashedPassword, $input['name']);
 if (!$insertStmt->execute()) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Insert failed: ' . $insertStmt->error]);

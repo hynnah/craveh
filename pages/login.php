@@ -57,14 +57,14 @@ if (!$mysqli->query($createTable)) {
     exit;
 }
 
-$stmt = $mysqli->prepare('SELECT id, email, name, created_at FROM users WHERE email = ? AND password_hash = ?');
+$stmt = $mysqli->prepare('SELECT id, email, name, password_hash, created_at FROM users WHERE email = ?');
 if (!$stmt) {
     http_response_code(500);
     echo json_encode(['success' => false, 'error' => 'Prepare failed: ' . $mysqli->error]);
     exit;
 }
 
-$stmt->bind_param('ss', $input['email'], $input['password']);
+$stmt->bind_param('s', $input['email']);
 $stmt->execute();
 $result = $stmt->get_result();
 
@@ -75,6 +75,14 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
+
+if (!password_verify($input['password'], $user['password_hash'])) {
+    http_response_code(401);
+    echo json_encode(['success' => false, 'error' => 'Invalid email or password']);
+    exit;
+}
+
+unset($user['password_hash']);
 $stmt->close();
 $mysqli->close();
 

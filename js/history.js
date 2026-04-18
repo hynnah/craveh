@@ -105,5 +105,13 @@ async function fetchHistory() {
   if (!response.ok || !result.success) {
     throw new Error(result.error || 'Failed to load order history');
   }
-  return result.orders;
+  return result.orders.map(order => ({
+    ...order,
+    total_amount: parseFloat(order.total_amount),
+    items: order.items.map(item => ({
+      ...item,
+      price: parseFloat(item.price),
+      quantity: parseInt(item.quantity)
+    }))
+  }));
 }

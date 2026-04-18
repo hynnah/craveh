@@ -66,7 +66,7 @@ function updateAuthForm() {
 function handleLogin(email, password) {
   sendLoginToServer(email, password)
     .then((user) => {
-      setCurrentUser({ id: user.id, name: user.name, email: user.email });
+      setCurrentUser(user);
       updateAccountPage();
       window.location.href = 'menu.html';
     })
@@ -83,7 +83,7 @@ function handleSignup(email, password, name) {
   
   sendSignupToServer(email, password, name)
     .then((user) => {
-      setCurrentUser({ id: user.id, name: user.name, email: user.email });
+      setCurrentUser(user);
       updateAccountPage();
       window.location.href = 'menu.html';
     })
@@ -95,44 +95,28 @@ function handleSignup(email, password, name) {
 async function sendLoginToServer(email, password) {
   const response = await fetch('login.php', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(response.status + ' ' + response.statusText + '\n' + text);
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result || !result.success) {
+    throw new Error(result?.error || 'Login failed');
   }
-
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error || 'Login failed');
-  }
-
   return result.user;
 }
 
 async function sendSignupToServer(email, password, name) {
   const response = await fetch('signup.php', {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json'
-    },
+    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name })
   });
 
-  if (!response.ok) {
-    const text = await response.text();
-    throw new Error(response.status + ' ' + response.statusText + '\n' + text);
+  const result = await response.json().catch(() => null);
+  if (!response.ok || !result || !result.success) {
+    throw new Error(result?.error || 'Signup failed');
   }
-
-  const result = await response.json();
-  if (!result.success) {
-    throw new Error(result.error || 'Signup failed');
-  }
-
   return result.user;
 }
 
@@ -162,7 +146,7 @@ function updateAccountPage() {
     document.getElementById('profile-since').textContent = profileSince.toLocaleDateString();
 
     document.getElementById('profile-phone').value = user.phone || '';
-    const addr = user.default_address || {};
+    const addr = user.delivery_address || {};
     document.getElementById('profile-street').value = addr.street || '';
     document.getElementById('profile-city').value = addr.city || '';
     document.getElementById('profile-state').value = addr.state || '';
@@ -192,7 +176,7 @@ async function handleSaveAddress(e) {
     return;
   }
 
-  const defaultAddress = {
+  const deliveryAddress = {
     street: document.getElementById('profile-street').value.trim(),
     city: document.getElementById('profile-city').value.trim(),
     state: document.getElementById('profile-state').value.trim(),
@@ -210,11 +194,11 @@ async function handleSaveAddress(e) {
     const response = await fetch('update_profile.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ phone: phone || null, default_address: defaultAddress })
+      body: JSON.stringify({ phone: phone || null, delivery_address: deliveryAddress })
     });
-    const result = await response.json();
-    if (!response.ok || !result.success) {
-      throw new Error(result.error || 'Save failed');
+    const result = await response.json().catch(() => null);
+    if (!response.ok || !result || !result.success) {
+      throw new Error(result?.error || 'Save failed');
     }
     setCurrentUser(result.user);
     successEl.textContent = 'Saved successfully!';

@@ -80,6 +80,61 @@
               <span id="profile-since"></span>
             </div>
           </div>
+        </div>
+
+        <!-- Phone & Saved Address -->
+        <div class="profile-card" style="margin-top: 1rem;">
+          <h3 class="profile-section-title">Phone & Delivery Address</h3>
+          <p class="profile-section-desc">This will auto-fill at checkout.</p>
+          <form id="profile-address-form">
+            <div class="form-group">
+              <label for="profile-phone">Phone Number</label>
+              <input type="tel" id="profile-phone" placeholder="Your phone number">
+              <p class="field-error" id="profile-phone-error"></p>
+            </div>
+            <div class="form-group">
+              <label for="profile-street">Street Address</label>
+              <input type="text" id="profile-street" placeholder="123 Main St">
+            </div>
+            <div class="form-row">
+              <div class="form-group form-group-flex">
+                <label for="profile-city">City</label>
+                <input type="text" id="profile-city" placeholder="City">
+              </div>
+              <div class="form-group form-group-flex">
+                <label for="profile-state">State</label>
+                <input type="text" id="profile-state" placeholder="State">
+              </div>
+              <div class="form-group form-group-flex">
+                <label for="profile-zip">ZIP Code</label>
+                <input type="text" id="profile-zip" placeholder="10001">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="profile-building">Building Name <span class="label-optional">(optional)</span></label>
+              <input type="text" id="profile-building" placeholder="e.g. Sunrise Apartments">
+            </div>
+            <div class="form-row">
+              <div class="form-group form-group-flex">
+                <label for="profile-floor">Floor <span class="label-optional">(optional)</span></label>
+                <input type="text" id="profile-floor" placeholder="e.g. 3rd">
+              </div>
+              <div class="form-group form-group-flex">
+                <label for="profile-apt">Apt / Suite / Unit <span class="label-optional">(optional)</span></label>
+                <input type="text" id="profile-apt" placeholder="e.g. 4B">
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="profile-landmark">Landmark <span class="label-optional">(optional)</span></label>
+              <input type="text" id="profile-landmark" placeholder="e.g. Near Central Park">
+            </div>
+            <p class="field-error" id="profile-address-error"></p>
+            <p class="success-message" id="profile-address-success"></p>
+            <button type="submit" class="btn btn-primary btn-block" id="save-address-btn">Save</button>
+          </form>
+        </div>
+
+        <div class="profile-card" style="margin-top: 1rem;">
           <button id="logout-btn" class="btn btn-destructive btn-block">
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>

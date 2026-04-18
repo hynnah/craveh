@@ -1,5 +1,6 @@
 <?php
 header('Content-Type: application/json');
+ini_set('serialize_precision', 14);
 session_start();
 
 $input = json_decode(file_get_contents('php://input'), true);

@@ -1,17 +1,13 @@
 <?php
 header('Content-Type: application/json');
 session_start();
+require_once __DIR__ . '/config.php';
 
 if (empty($_SESSION['user']['id'])) {
     http_response_code(401);
     echo json_encode(['success' => false, 'error' => 'Not logged in']);
     exit;
 }
-
-$dbHost = '127.0.0.1';
-$dbUser = 'root';
-$dbPass = '';
-$dbName = 'craveh_db';
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -20,7 +16,7 @@ if (!$input) {
     exit;
 }
 
-$requiredFields = ['userId', 'total', 'address', 'phone', 'items'];
+$requiredFields = ['userId', 'address', 'phone', 'items'];
 foreach ($requiredFields as $field) {
     if (empty($input[$field])) {
         http_response_code(400);
@@ -29,39 +25,36 @@ foreach ($requiredFields as $field) {
     }
 }
 
-$mysqli = new mysqli($dbHost, $dbUser, $dbPass);
-if ($mysqli->connect_error) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Database connection failed: ' . $mysqli->connect_error]);
+if (strlen(trim($input['address'])) < 10) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Address must be at least 10 characters']);
     exit;
 }
 
-$mysqli->set_charset('utf8mb4');
-$createDb = $mysqli->query("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-if (!$createDb) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create database: ' . $mysqli->error]);
+if (!preg_match('/^\d{7,15}$/', trim($input['phone']))) {
+    http_response_code(400);
+    echo json_encode(['success' => false, 'error' => 'Phone must be 7-15 digits']);
     exit;
 }
 
-$mysqli->select_db($dbName);
-
-$createTable = "CREATE TABLE IF NOT EXISTS `client_orders` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `client_user_id` VARCHAR(50) NOT NULL,
-    `total_amount` DECIMAL(10,2) NOT NULL,
-    `delivery_address` TEXT NOT NULL,
-    `phone` VARCHAR(50) NOT NULL,
-    `items` TEXT NOT NULL,
-    `status` VARCHAR(50) DEFAULT 'pending',
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-if (!$mysqli->query($createTable)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create orders table: ' . $mysqli->error]);
+if ($input['userId'] != $_SESSION['user']['id']) {
+    http_response_code(403);
+    echo json_encode(['success' => false, 'error' => 'User ID mismatch']);
     exit;
 }
+
+$mysqli = getDbConnection();
+
+$totalAmount = 0.0;
+foreach ($input['items'] as $item) {
+    if (empty($item['price']) || empty($item['quantity'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Each item must have price and quantity']);
+        exit;
+    }
+    $totalAmount += floatval($item['price']) * intval($item['quantity']);
+}
+$totalAmount = round($totalAmount, 2);
 
 $itemsJson = json_encode($input['items']);
 if ($itemsJson === false) {
@@ -71,12 +64,12 @@ if ($itemsJson === false) {
 }
 
 $stmt = $mysqli->prepare(
-    'INSERT INTO `client_orders` (`client_user_id`, `total_amount`, `delivery_address`, `phone`, `items`, `status`) VALUES (?, ?, ?, ?, ?, ?)' 
+    'INSERT INTO `client_orders` (`client_user_id`, `total_amount`, `delivery_address`, `phone`, `items`, `status`) VALUES (?, ?, ?, ?, ?, ?)'
 );
 
 if (!$stmt) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Prepare failed: ' . $mysqli->error]);
+    echo json_encode(['success' => false, 'error' => 'Prepare failed']);
     exit;
 }
 
@@ -84,7 +77,7 @@ $status = 'pending';
 $stmt->bind_param(
     'sdssss',
     $input['userId'],
-    $input['total'],
+    $totalAmount,
     $input['address'],
     $input['phone'],
     $itemsJson,
@@ -93,7 +86,7 @@ $stmt->bind_param(
 
 if (!$stmt->execute()) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Insert failed: ' . $stmt->error]);
+    echo json_encode(['success' => false, 'error' => 'Insert failed']);
     exit;
 }
 

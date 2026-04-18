@@ -182,7 +182,7 @@ function renderCheckout() {
 }
 
 function prefillFromSavedAddress(user) {
-  const addr = user.default_address;
+  const addr = user.delivery_address;
   if (!addr) return;
   const fields = {
     'street-input': addr.street,

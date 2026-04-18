@@ -1,11 +1,7 @@
 <?php
 header('Content-Type: application/json');
 session_start();
-
-$dbHost = '127.0.0.1';
-$dbUser = 'root';
-$dbPass = '';
-$dbName = 'craveh_db';
+require_once __DIR__ . '/config.php';
 
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input) {
@@ -23,44 +19,12 @@ foreach ($requiredFields as $field) {
     }
 }
 
-$mysqli = new mysqli($dbHost, $dbUser, $dbPass);
-if ($mysqli->connect_error) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Database connection failed: ' . $mysqli->connect_error]);
-    exit;
-}
-
-$mysqli->set_charset('utf8mb4');
-$createDb = $mysqli->query("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-if (!$createDb) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create database: ' . $mysqli->error]);
-    exit;
-}
-
-$mysqli->select_db($dbName);
-
-$createTable = "CREATE TABLE IF NOT EXISTS `users` (
-    `id` INT AUTO_INCREMENT PRIMARY KEY,
-    `email` VARCHAR(255) UNIQUE NOT NULL,
-    `password_hash` VARCHAR(255) NOT NULL,
-    `name` VARCHAR(255) NOT NULL,
-    `phone` VARCHAR(50),
-    `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    INDEX idx_email (email)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;";
-
-if (!$mysqli->query($createTable)) {
-    http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Failed to create users table: ' . $mysqli->error]);
-    exit;
-}
+$mysqli = getDbConnection();
 
 $stmt = $mysqli->prepare('SELECT id FROM users WHERE email = ?');
 if (!$stmt) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Prepare failed: ' . $mysqli->error]);
+    echo json_encode(['success' => false, 'error' => 'Prepare failed']);
     exit;
 }
 
@@ -79,7 +43,7 @@ $stmt->close();
 $insertStmt = $mysqli->prepare('INSERT INTO users (email, password_hash, name) VALUES (?, ?, ?)');
 if (!$insertStmt) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Insert prepare failed: ' . $mysqli->error]);
+    echo json_encode(['success' => false, 'error' => 'Insert prepare failed']);
     exit;
 }
 
@@ -87,24 +51,24 @@ $hashedPassword = password_hash($input['password'], PASSWORD_DEFAULT);
 $insertStmt->bind_param('sss', $input['email'], $hashedPassword, $input['name']);
 if (!$insertStmt->execute()) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Insert failed: ' . $insertStmt->error]);
+    echo json_encode(['success' => false, 'error' => 'Insert failed']);
     exit;
 }
 
 $userId = $insertStmt->insert_id;
 $insertStmt->close();
 
-$selectStmt = $mysqli->prepare('SELECT id, email, name, created_at FROM users WHERE id = ?');
+$selectStmt = $mysqli->prepare('SELECT id, email, name, phone, delivery_address, created_at FROM users WHERE id = ?');
 if (!$selectStmt) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => 'Select prepare failed: ' . $mysqli->error]);
+    echo json_encode(['success' => false, 'error' => 'Select prepare failed']);
     exit;
 }
 
 $selectStmt->bind_param('i', $userId);
 $selectStmt->execute();
 $result = $selectStmt->get_result();
-$user = $result->fetch_assoc();
+$user = parseUserRow($result->fetch_assoc());
 $selectStmt->close();
 $mysqli->close();
 

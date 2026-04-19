@@ -1,5 +1,5 @@
 // Menu Items Data
-const MENU_ITEMS = [
+let MENU_ITEMS = [
   {
     id: '1',
     name: 'Classic Burger',

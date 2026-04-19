@@ -69,7 +69,7 @@ async function renderHistory() {
             ${new Date(order.created_at).toLocaleString()}
           </div>
         </div>
-        <span class="order-status">${order.status}</span>
+        <span class="order-status">${formatStatus(order.status)}</span>
       </div>
       
       <div class="order-items">
@@ -97,6 +97,10 @@ async function renderHistory() {
   `).join('');
   
   historyContent.innerHTML = `<div class="orders-list">${ordersHTML}</div>`;
+}
+
+function formatStatus(status) {
+  return String(status || '').replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
 }
 
 async function fetchHistory() {

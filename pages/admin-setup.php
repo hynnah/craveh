@@ -120,7 +120,7 @@ if ($action === 'check' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     button {
       width: 100%;
       padding: 12px;
-      background-color: #4CAF50;
+      background-color: #34495e;
       color: white;
       border: none;
       border-radius: 4px;
@@ -130,7 +130,7 @@ if ($action === 'check' && $_SERVER['REQUEST_METHOD'] === 'GET') {
       margin-top: 10px;
     }
     button:hover {
-      background-color: #45a049;
+      background-color: #34495e;
     }
     .message {
       text-align: center;
@@ -140,7 +140,7 @@ if ($action === 'check' && $_SERVER['REQUEST_METHOD'] === 'GET') {
     }
     .success {
       background-color: #d4edda;
-      color: #155724;
+      color: #2c3e50;
     }
     .error {
       background-color: #f8d7da;

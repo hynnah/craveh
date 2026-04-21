@@ -2,11 +2,13 @@
 
 document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
+  // Auto-refresh menu every 10 seconds to pick up admin availability changes
+  setInterval(renderMenu, 3000);
 });
 
 async function renderMenu() {
   const menuGrid = document.getElementById('menu-grid');
-  menuGrid.innerHTML = 'Loading menu...';
+  if (!menuGrid.children.length) menuGrid.innerHTML = 'Loading menu...';
   
   let items = MENU_ITEMS;
   try {

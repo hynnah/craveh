@@ -304,6 +304,31 @@
       box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
     }
 
+    .image-source-toggle {
+      display: flex;
+      gap: 0;
+      margin-bottom: 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      border: 1px solid #ddd;
+      width: fit-content;
+    }
+
+    .toggle-btn {
+      padding: 6px 16px;
+      border: none;
+      background: #ecf0f1;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .toggle-btn.active {
+      background: #3498db;
+      color: white;
+    }
+
     .checkbox-group {
       display: flex;
       align-items: center;
@@ -451,8 +476,18 @@
         </div>
 
         <div class="form-group">
-          <label for="itemImageUrl">Image URL</label>
-          <input type="url" id="itemImageUrl" placeholder="https://...">
+          <label>Image</label>
+          <div class="image-source-toggle">
+            <button type="button" class="toggle-btn active" id="toggleUrl" onclick="switchImageSource('url')">URL</button>
+            <button type="button" class="toggle-btn" id="toggleUpload" onclick="switchImageSource('upload')">Upload</button>
+          </div>
+          <div id="imageUrlField">
+            <input type="url" id="itemImageUrl" placeholder="https://...">
+          </div>
+          <div id="imageUploadField" style="display:none;">
+            <input type="file" id="itemImageFile" accept="image/jpeg,image/png,image/gif,image/webp">
+          </div>
+          <img id="imagePreview" src="" alt="Preview" style="display:none; max-width:100%; max-height:150px; margin-top:8px; border-radius:4px; object-fit:cover;">
         </div>
 
         <div class="form-group checkbox-group">
@@ -556,9 +591,12 @@
 
     function openAddModal() {
       editingItemId = null;
+      uploadedImageUrl = '';
       document.getElementById('modalTitle').textContent = 'Add New Menu Item';
       document.getElementById('itemForm').reset();
       document.getElementById('itemAvailable').checked = true;
+      document.getElementById('imagePreview').style.display = 'none';
+      switchImageSource('url');
       document.getElementById('itemModal').classList.add('show');
     }
 
@@ -577,8 +615,14 @@
           document.getElementById('itemDescription').value = item.description || '';
           document.getElementById('itemPrice').value = item.price;
           document.getElementById('itemCategory').value = item.category;
-          document.getElementById('itemImageUrl').value = item.image_url || '';
+          uploadedImageUrl = item.image_url || '';
+          const isUrl = !item.image_url || item.image_url.startsWith('http');
+          switchImageSource(isUrl ? 'url' : 'upload');
+          document.getElementById('itemImageUrl').value = isUrl ? (item.image_url || '') : '';
           document.getElementById('itemAvailable').checked = isAvailable;
+          const preview = document.getElementById('imagePreview');
+          if (item.image_url) { preview.src = item.image_url; preview.style.display = 'block'; }
+          else { preview.style.display = 'none'; }
           
           document.getElementById('itemModal').classList.add('show');
         } else {
@@ -595,13 +639,71 @@
       editingItemId = null;
     }
 
+    let imageSource = 'url';
+    let uploadedImageUrl = '';
+
+    function switchImageSource(source) {
+      imageSource = source;
+      document.getElementById('toggleUrl').classList.toggle('active', source === 'url');
+      document.getElementById('toggleUpload').classList.toggle('active', source === 'upload');
+      document.getElementById('imageUrlField').style.display = source === 'url' ? '' : 'none';
+      document.getElementById('imageUploadField').style.display = source === 'upload' ? '' : 'none';
+    }
+
+    document.getElementById('itemImageUrl').addEventListener('input', (e) => {
+      const preview = document.getElementById('imagePreview');
+      if (e.target.value) {
+        preview.src = e.target.value;
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    document.getElementById('itemImageFile').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const preview = document.getElementById('imagePreview');
+      if (file) {
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
     async function saveMenuItem() {
+      let imageUrl = '';
+      if (imageSource === 'url') {
+        imageUrl = document.getElementById('itemImageUrl').value;
+      } else {
+        const fileInput = document.getElementById('itemImageFile');
+        if (fileInput.files[0]) {
+          const formData = new FormData();
+          formData.append('image', fileInput.files[0]);
+          try {
+            const uploadRes = await fetch('admin-api.php?action=upload_image', { method: 'POST', body: formData });
+            const uploadData = await uploadRes.json();
+            if (uploadData.success) {
+              imageUrl = uploadData.url;
+            } else {
+              showMessage(uploadData.error || 'Image upload failed', 'error');
+              return;
+            }
+          } catch (err) {
+            showMessage('Image upload failed', 'error');
+            return;
+          }
+        } else if (editingItemId) {
+          imageUrl = uploadedImageUrl;
+        }
+      }
+
       const itemData = {
         name: document.getElementById('itemName').value,
         description: document.getElementById('itemDescription').value,
         price: parseFloat(document.getElementById('itemPrice').value),
         category: document.getElementById('itemCategory').value,
-        image_url: document.getElementById('itemImageUrl').value,
+        image_url: imageUrl,
         is_available: document.getElementById('itemAvailable').checked ? 1 : 0
       };
 

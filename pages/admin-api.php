@@ -12,6 +12,43 @@ if ($action !== 'get_menu_items' && empty($_SESSION['admin'])) {
     exit;
 }
 
+// ===== IMAGE UPLOAD (no DB needed) =====
+if ($action === 'upload_image' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (empty($_FILES['image'])) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'No file uploaded']);
+        exit;
+    }
+
+    $file = $_FILES['image'];
+    $allowed = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
+    if (!in_array($file['type'], $allowed)) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Only JPG, PNG, GIF, WEBP allowed']);
+        exit;
+    }
+
+    if ($file['size'] > 5 * 1024 * 1024) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'File must be under 5MB']);
+        exit;
+    }
+
+    $ext = pathinfo($file['name'], PATHINFO_EXTENSION);
+    $filename = uniqid('menu_') . '.' . $ext;
+    $uploadDir = __DIR__ . '/../uploads/menu/';
+    $dest = $uploadDir . $filename;
+
+    if (move_uploaded_file($file['tmp_name'], $dest)) {
+        echo json_encode(['success' => true, 'url' => '../uploads/menu/' . $filename]);
+    } else {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Upload failed']);
+    }
+    exit;
+}
+
 $mysqli = getDbConnection();
 
 // ===== MENU MANAGEMENT =====

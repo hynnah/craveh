@@ -4,11 +4,36 @@ document.addEventListener('DOMContentLoaded', () => {
   renderMenu();
 });
 
-function renderMenu() {
+async function renderMenu() {
   const menuGrid = document.getElementById('menu-grid');
+  menuGrid.innerHTML = 'Loading menu...';
+  
+  let items = MENU_ITEMS;
+  try {
+    const response = await fetch('admin-api.php?action=get_menu_items');
+    const data = await response.json();
+    if (response.ok && data.success) {
+      items = data.items
+        .filter(item => Number(item.is_available) === 1)
+        .map(item => ({
+          ...item,
+          image: item.image_url || item.image || 'https://via.placeholder.com/400x300?text=No+Image',
+          price: parseFloat(item.price) || 0
+        }));
+      MENU_ITEMS = items;
+    }
+  } catch (error) {
+    console.warn('Unable to load live menu items, using fallback data.', error);
+  }
+
+  if (!items || items.length === 0) {
+    menuGrid.innerHTML = '<div class="empty-state">No menu items available right now.</div>';
+    return;
+  }
+
   menuGrid.innerHTML = '';
   
-  MENU_ITEMS.forEach(item => {
+  items.forEach(item => {
     const menuItemEl = document.createElement('div');
     menuItemEl.className = 'menu-item';
     menuItemEl.innerHTML = `

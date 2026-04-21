@@ -25,10 +25,18 @@ function getDbConnection() {
         `name` VARCHAR(255) NOT NULL,
         `phone` VARCHAR(50),
         `delivery_address` TEXT,
+        `role` ENUM('customer', 'admin') DEFAULT 'customer',
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_email (email)
+        INDEX idx_email (email),
+        INDEX idx_role (role)
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $result = $mysqli->query("SHOW COLUMNS FROM `users` LIKE 'role'");
+    if ($result && $result->num_rows === 0) {
+        $mysqli->query("ALTER TABLE `users` ADD COLUMN `role` ENUM('customer', 'admin') DEFAULT 'customer' AFTER `delivery_address`");
+        $mysqli->query("ALTER TABLE `users` ADD INDEX idx_role (role)");
+    }
 
     $mysqli->query("CREATE TABLE IF NOT EXISTS `client_orders` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -40,6 +48,43 @@ function getDbConnection() {
         `status` VARCHAR(50) DEFAULT 'pending',
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    $mysqli->query("CREATE TABLE IF NOT EXISTS `menu_items` (
+        `id` INT AUTO_INCREMENT PRIMARY KEY,
+        `name` VARCHAR(255) NOT NULL,
+        `description` TEXT,
+        `price` DECIMAL(10,2) NOT NULL,
+        `image_url` VARCHAR(500),
+        `category` VARCHAR(100),
+        `is_available` BOOLEAN DEFAULT TRUE,
+        `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_category (category),
+        INDEX idx_available (is_available)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+    // Insert default menu items if table is empty
+    $result = $mysqli->query("SELECT COUNT(*) as count FROM menu_items");
+    $row = $result->fetch_assoc();
+    if ($row['count'] == 0) {
+        $defaultItems = [
+            ['Classic Burger', 'Juicy beef patty with lettuce, tomato, and special sauce', 12.99, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&h=300&fit=crop', 'Burgers'],
+            ['Margherita Pizza', 'Fresh mozzarella, basil, and tomato sauce', 14.99, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&h=300&fit=crop', 'Pizza'],
+            ['Caesar Salad', 'Crisp romaine lettuce with parmesan and croutons', 9.99, 'https://images.unsplash.com/photo-1546793665-c74683f339c1?w=400&h=300&fit=crop', 'Salads'],
+            ['Chicken Wings', 'Crispy wings with your choice of sauce', 11.99, 'https://images.unsplash.com/photo-1608039755401-742074f0548d?w=400&h=300&fit=crop', 'Appetizers'],
+            ['Spaghetti Carbonara', 'Creamy pasta with bacon and parmesan', 13.99, 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop', 'Pasta'],
+            ['Fish & Chips', 'Crispy battered fish with golden fries', 15.99, 'https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=400&h=300&fit=crop', 'Seafood'],
+            ['BBQ Ribs', 'Tender ribs with smoky BBQ sauce', 18.99, 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop', 'BBQ'],
+            ['Tacos', 'Three soft tacos with your choice of protein', 10.99, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&h=300&fit=crop', 'Mexican']
+        ];
+        
+        foreach ($defaultItems as $item) {
+            $stmt = $mysqli->prepare("INSERT INTO menu_items (name, description, price, image_url, category) VALUES (?, ?, ?, ?, ?)");
+            $stmt->bind_param("ssdss", $item[0], $item[1], $item[2], $item[3], $item[4]);
+            $stmt->execute();
+            $stmt->close();
+        }
+    }
 
     return $mysqli;
 }

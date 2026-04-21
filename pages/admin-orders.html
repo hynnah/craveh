@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders Management - Craveh Admin</title>
+  <link rel="stylesheet" href="../css/app.css">
+  <style>
+    .admin-header {
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .admin-header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+
+    .admin-nav {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .admin-nav a, .admin-nav button {
+      display: inline-flex;
+      align-items: center;
+      color: white;
+      text-decoration: none;
+      padding: 8px 15px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+      transition: background-color 0.3s;
+      line-height: 1.2;
+    }
+
+    .admin-nav a:hover, .admin-nav button:hover {
+      background-color: rgba(255, 255, 255, 0.1);
+    }
+
+    .admin-container {
+      display: flex;
+      min-height: calc(100vh - 70px);
+    }
+
+    .sidebar {
+      width: 200px;
+      background-color: #34495e;
+      padding: 20px 0;
+      border-right: 1px solid #2c3e50;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ecf0f1;
+      text-decoration: none;
+      padding: 12px 20px;
+      border-left: 3px solid transparent;
+      transition: all 0.3s;
+    }
+
+    .sidebar a:hover, .sidebar a.active {
+      background-color: #2c3e50;
+      border-left-color: #3498db;
+      color: white;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      background-color: #f5f5f5;
+      overflow-y: auto;
+    }
+
+    .page-title {
+      color: #2c3e50;
+      margin-top: 0;
+    }
+
+    .filters {
+      background: white;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 10px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .filters select {
+      padding: 8px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .filters button {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .filters button:hover {
+      background-color: #45a049;
+    }
+
+    .orders-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+      gap: 20px;
+    }
+
+    .order-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .order-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ecf0f1;
+      padding-bottom: 10px;
+    }
+
+    .order-id {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2c3e50;
+    }
+
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+    }
+
+    .status-confirmed {
+      background-color: #d1ecf1;
+      color: #0c5460;
+    }
+
+    .status-preparing {
+      background-color: #cfe2ff;
+      color: #084298;
+    }
+
+    .status-out_for_delivery {
+      background-color: #d1e7dd;
+      color: #0a3622;
+    }
+
+    .status-delivered {
+      background-color: #d1e7dd;
+      color: #0a3622;
+    }
+
+    .status-cancelled {
+      background-color: #f8d7da;
+      color: #721c24;
+    }
+
+    .order-info {
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .order-info p {
+      margin: 5px 0;
+      color: #555;
+    }
+
+    .order-info strong {
+      color: #2c3e50;
+    }
+
+    .order-items {
+      background-color: #f9f9f9;
+      padding: 10px;
+      border-radius: 4px;
+      margin-bottom: 15px;
+      font-size: 13px;
+    }
+
+    .order-items h4 {
+      margin: 0 0 8px 0;
+      color: #2c3e50;
+    }
+
+    .item {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 5px;
+      color: #555;
+    }
+
+    .order-footer {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      border-top: 1px solid #ecf0f1;
+      padding-top: 15px;
+    }
+
+    .status-select {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .update-btn {
+      padding: 8px 16px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .update-btn:hover {
+      background-color: #45a049;
+    }
+
+    .update-btn:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
+    }
+
+    .loading {
+      text-align: center;
+      color: #7f8c8d;
+      padding: 40px;
+    }
+
+    .error {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .success {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 12px;
+      border-radius: 4px;
+      margin-bottom: 20px;
+    }
+
+    .total-amount {
+      font-size: 16px;
+      font-weight: 600;
+      color: #4CAF50;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Admin Header -->
+  <header class="admin-header">
+    <h1>Craveh Admin - Orders</h1>
+    <nav class="admin-nav">
+      <span id="adminName"></span>
+      <a href="admin-profile.html">Profile</a>
+      <button onclick="adminLogout()">Logout</button>
+    </nav>
+  </header>
+
+  <div class="admin-container">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <a href="admin-dashboard.html">Dashboard</a>
+      <a href="admin-orders.html" class="active">Orders</a>
+      <a href="admin-menu.html">Menu</a>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <h2 class="page-title">Orders Management</h2>
+      
+      <div id="messageContainer"></div>
+
+      <!-- Filters -->
+      <div class="filters">
+        <select id="statusFilter">
+          <option value="">All Orders</option>
+          <option value="pending">Pending</option>
+          <option value="confirmed">Confirmed</option>
+          <option value="preparing">Preparing</option>
+          <option value="out_for_delivery">Out for Delivery</option>
+          <option value="delivered">Delivered</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+        <button onclick="loadOrders()">Filter</button>
+      </div>
+
+      <!-- Orders Grid -->
+      <div id="ordersContainer" class="orders-grid loading">Loading orders...</div>
+    </main>
+  </div>
+
+  <script>
+    let currentAdmin = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadAdminSession();
+      await loadOrders();
+    });
+
+    async function loadAdminSession() {
+      try {
+        const response = await fetch('admin-session.php');
+        const data = await response.json();
+        
+        if (data.success && data.admin) {
+          currentAdmin = data.admin;
+          document.getElementById('adminName').textContent = `Welcome, ${data.admin.name}`;
+        } else {
+          window.location.href = 'admin-login.html';
+        }
+      } catch (error) {
+        console.error('Session error:', error);
+        window.location.href = 'admin-login.html';
+      }
+    }
+
+    async function loadOrders() {
+      try {
+        const status = document.getElementById('statusFilter').value;
+        const url = 'admin-api.php?action=get_orders' + (status ? `&status=${status}` : '');
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (data.success) {
+          renderOrders(data.orders);
+        } else {
+          showMessage('Failed to load orders', 'error');
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        showMessage('Error loading orders', 'error');
+      }
+    }
+
+    function renderOrders(orders) {
+      const container = document.getElementById('ordersContainer');
+      
+      if (orders.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; color: #7f8c8d; padding: 40px;">No orders found</div>';
+        return;
+      }
+
+      let html = '';
+      orders.forEach(order => {
+        const date = new Date(order.created_at);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        const statusClass = `status-${order.status}`;
+        
+        let itemsHtml = '';
+        if (Array.isArray(order.items)) {
+          order.items.forEach(item => {
+            itemsHtml += `<div class="item">
+              <span>${item.name || item.menuItemId} x${item.quantity}</span>
+              <span>$${parseFloat(item.price).toFixed(2)}</span>
+            </div>`;
+          });
+        }
+
+        html += `
+          <div class="order-card">
+            <div class="order-header">
+              <div class="order-id">Order #${order.id}</div>
+              <span class="status-badge ${statusClass}">${formatStatus(order.status)}</span>
+            </div>
+            <div class="order-info">
+              <p><strong>Customer ID:</strong> ${order.client_user_id}</p>
+              <p><strong>Phone:</strong> ${order.phone}</p>
+              <p><strong>Address:</strong> ${order.delivery_address}</p>
+              <p><strong>Date:</strong> ${formattedDate}</p>
+            </div>
+
+            <div class="order-items">
+              <h4>Items:</h4>
+              ${itemsHtml}
+            </div>
+
+            <div class="total-amount">Total: $${parseFloat(order.total_amount).toFixed(2)}</div>
+
+            <div class="order-footer">
+              <select class="status-select" id="status-${order.id}">
+                <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+                <option value="confirmed" ${order.status === 'confirmed' ? 'selected' : ''}>Confirmed</option>
+                <option value="preparing" ${order.status === 'preparing' ? 'selected' : ''}>Preparing</option>
+                <option value="out_for_delivery" ${order.status === 'out_for_delivery' ? 'selected' : ''}>Out for Delivery</option>
+                <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+                <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              </select>
+              <button class="update-btn" onclick="updateOrderStatus(${order.id})">Update</button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function updateOrderStatus(orderId) {
+      const newStatus = document.getElementById(`status-${orderId}`).value;
+      const btn = event.target;
+      btn.disabled = true;
+
+      try {
+        const response = await fetch('admin-api.php?action=update_order_status', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ id: orderId, status: newStatus })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showMessage('Order status updated successfully', 'success');
+          setTimeout(() => loadOrders(), 1000);
+        } else {
+          showMessage('Failed to update order status', 'error');
+        }
+      } catch (error) {
+        console.error('Error updating order:', error);
+        showMessage('Error updating order status', 'error');
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    function formatStatus(status) {
+      return String(status || '').replace(/_/g, ' ').replace(/\b\w/g, char => char.toUpperCase());
+    }
+
+    function showMessage(message, type) {
+      const container = document.getElementById('messageContainer');
+      const className = type === 'error' ? 'error' : 'success';
+      container.innerHTML = `<div class="${className}">${message}</div>`;
+      setTimeout(() => {
+        container.innerHTML = '';
+      }, 5000);
+    }
+
+    function adminLogout() {
+      if (confirm('Are you sure you want to logout?')) {
+        fetch('admin-logout.php', { method: 'POST' }).then(() => {
+          window.location.href = 'admin-login.html';
+        });
+      }
+    }
+
+    // Auto-refresh orders every 30 seconds
+    setInterval(() => {
+      if (!document.hidden) {
+        loadOrders();
+      }
+    }, 30000);
+  </script>
+</body>
+</html>

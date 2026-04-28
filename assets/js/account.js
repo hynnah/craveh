@@ -50,28 +50,35 @@ function updateAuthForm() {
   
   if (isLogin) {
     nameField.style.display = 'none';
-    authTitle.textContent = 'Login';
-    authSubmitBtn.textContent = 'Login';
+    authTitle.textContent = 'Welcome Back';
+    authSubmitBtn.textContent = 'Sign In';
     authToggleText.textContent = "Don't have an account? ";
     authToggleBtn.textContent = 'Sign Up';
   } else {
     nameField.style.display = 'block';
-    authTitle.textContent = 'Sign Up';
-    authSubmitBtn.textContent = 'Sign Up';
+    authTitle.textContent = 'Create Account';
+    authSubmitBtn.textContent = 'Create Account';
     authToggleText.textContent = 'Already have an account? ';
-    authToggleBtn.textContent = 'Login';
+    authToggleBtn.textContent = 'Sign In';
   }
 }
 
 function handleLogin(email, password) {
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Signing in...';
+  
   sendLoginToServer(email, password)
     .then((user) => {
       setCurrentUser(user);
       updateAccountPage();
-      window.location.href = 'menu.html';
+      showToast('Welcome back, ' + user.name + '!');
+      setTimeout(() => window.location.href = 'menu.html', 800);
     })
     .catch((error) => {
       document.getElementById('auth-error').textContent = error.message;
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
     });
 }
 
@@ -81,14 +88,21 @@ function handleSignup(email, password, name) {
     return;
   }
   
+  const btn = document.getElementById('auth-submit-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span> Creating account...';
+  
   sendSignupToServer(email, password, name)
     .then((user) => {
       setCurrentUser(user);
       updateAccountPage();
-      window.location.href = 'menu.html';
+      showToast('Account created successfully!');
+      setTimeout(() => window.location.href = 'menu.html', 800);
     })
     .catch((error) => {
       document.getElementById('auth-error').textContent = error.message;
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
     });
 }
 
@@ -121,8 +135,11 @@ async function sendSignupToServer(email, password, name) {
 }
 
 function handleLogout() {
+  if (!confirm('Are you sure you want to sign out?')) return;
+  
   logout();
   updateAccountPage();
+  showToast('Signed out successfully');
   
   // Clear form
   document.getElementById('email-input').value = '';
@@ -141,9 +158,9 @@ function updateAccountPage() {
     
     document.getElementById('profile-name').textContent = user.name;
     document.getElementById('profile-email').textContent = user.email;
-    document.getElementById('profile-id').textContent = user.id;
+    document.getElementById('profile-id').textContent = '#' + user.id;
     const profileSince = user.created_at ? new Date(user.created_at) : new Date();
-    document.getElementById('profile-since').textContent = profileSince.toLocaleDateString();
+    document.getElementById('profile-since').textContent = profileSince.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
     const avatar = document.getElementById('profile-avatar');
     if (avatar) {
@@ -194,7 +211,7 @@ async function handleSaveAddress(e) {
   };
 
   btn.disabled = true;
-  btn.innerHTML = '<span class="spinner"></span> Saving…';
+  btn.innerHTML = '<span class="spinner"></span> Saving...';
 
   try {
     const response = await fetch('../api/update_profile.php', {
@@ -207,12 +224,29 @@ async function handleSaveAddress(e) {
       throw new Error(result?.error || 'Save failed');
     }
     setCurrentUser(result.user);
-    successEl.textContent = 'Saved successfully!';
+    successEl.textContent = 'Profile updated successfully!';
+    showToast('Profile updated successfully!');
     setTimeout(() => successEl.textContent = '', 3000);
   } catch (error) {
     errorEl.textContent = error.message;
   } finally {
     btn.disabled = false;
-    btn.textContent = 'Save';
+    btn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg> Save Changes';
   }
+}
+
+function showToast(message) {
+  const existingToast = document.querySelector('.toast');
+  if (existingToast) existingToast.remove();
+  
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  
+  setTimeout(() => toast.classList.add('show'), 10);
+  setTimeout(() => {
+    toast.classList.remove('show');
+    setTimeout(() => toast.remove(), 300);
+  }, 3000);
 }

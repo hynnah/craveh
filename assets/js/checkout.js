@@ -15,21 +15,6 @@ function renderCheckout() {
   const checkoutContent = document.getElementById('checkout-content');
   const user = getCurrentUser();
 
-  if (!user) {
-    checkoutContent.innerHTML = `
-      <div class="empty-state">
-        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-          <circle cx="12" cy="7" r="4"></circle>
-        </svg>
-        <h3>Please login to checkout</h3>
-        <p>Create an account or login to place your order</p>
-        <a href="account.html" class="btn btn-primary">Go to Account</a>
-      </div>
-    `;
-    return;
-  }
-
   if (cart.length === 0) {
     checkoutContent.innerHTML = `
       <div class="empty-state">
@@ -47,11 +32,13 @@ function renderCheckout() {
   }
 
   const total = getCartTotal();
+  const phoneValue = user ? escapeHtml(user.phone || '') : '';
+
   checkoutContent.innerHTML = `
     <h2 class="page-title">Checkout</h2>
 
     <div class="checkout-section">
-      <h3>Order Summary</h3>
+      <div class="checkout-step-header"><span class="checkout-step-number">1</span><h3>Order Summary</h3></div>
       <div>
         ${cart.map(item => `
           <div class="checkout-item">
@@ -83,7 +70,7 @@ function renderCheckout() {
     </div>
 
     <div class="checkout-section">
-      <h3>Delivery Information</h3>
+      <div class="checkout-step-header"><span class="checkout-step-number">2</span><h3>Delivery Information</h3></div>
       <form id="checkout-form">
         <div class="form-group">
           <label for="street-input">Street Address</label>
@@ -131,14 +118,14 @@ function renderCheckout() {
         </div>
         <div class="form-group">
           <label for="phone-input">Phone Number</label>
-          <input type="tel" id="phone-input" placeholder="Enter your phone number" value="${escapeHtml(user.phone || '')}" required>
+          <input type="tel" id="phone-input" placeholder="Enter your phone number" value="${phoneValue}" required>
           <p class="field-error" id="phone-error"></p>
         </div>
       </form>
     </div>
 
     <div class="checkout-section">
-      <h3>Payment Method</h3>
+      <div class="checkout-step-header"><span class="checkout-step-number">3</span><h3>Payment Method</h3></div>
       <div class="payment-method-card">
         <div class="payment-icon">💵</div>
         <div class="payment-details">
@@ -176,9 +163,15 @@ function renderCheckout() {
     });
   });
 
-  document.getElementById('place-order-btn').addEventListener('click', handlePlaceOrder);
+  document.getElementById('place-order-btn').addEventListener('click', () => {
+    if (!user) {
+      window.location.href = 'account.html';
+      return;
+    }
+    handlePlaceOrder();
+  });
 
-  prefillFromSavedAddress(user);
+  if (user) prefillFromSavedAddress(user);
 }
 
 function prefillFromSavedAddress(user) {
@@ -243,7 +236,6 @@ function validateCheckoutFields() {
   return valid;
 }
 
-
 function buildAddress() {
   const street = document.getElementById('street-input').value.trim();
   const apt = document.getElementById('apt-input').value.trim();
@@ -307,7 +299,7 @@ async function handlePlaceOrder() {
 }
 
 async function sendOrderToServer(order) {
-  const response = await fetch('save_order.php', {
+  const response = await fetch('../api/save_order.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(order)

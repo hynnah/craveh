@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/config.php';
+require_once __DIR__ . '/../api/config.php';
 
 // This file helps create the first admin account
 // Access: http://localhost/craveh/pages/admin-setup.php

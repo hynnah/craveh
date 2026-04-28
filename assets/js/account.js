@@ -93,7 +93,7 @@ function handleSignup(email, password, name) {
 }
 
 async function sendLoginToServer(email, password) {
-  const response = await fetch('login.php', {
+  const response = await fetch('../api/login.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password })
@@ -107,7 +107,7 @@ async function sendLoginToServer(email, password) {
 }
 
 async function sendSignupToServer(email, password, name) {
-  const response = await fetch('signup.php', {
+  const response = await fetch('../api/signup.php', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ email, password, name })
@@ -144,6 +144,12 @@ function updateAccountPage() {
     document.getElementById('profile-id').textContent = user.id;
     const profileSince = user.created_at ? new Date(user.created_at) : new Date();
     document.getElementById('profile-since').textContent = profileSince.toLocaleDateString();
+
+    const avatar = document.getElementById('profile-avatar');
+    if (avatar) {
+      const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
+      avatar.textContent = initials;
+    }
 
     document.getElementById('profile-phone').value = user.phone || '';
     const addr = user.delivery_address || {};
@@ -191,7 +197,7 @@ async function handleSaveAddress(e) {
   btn.innerHTML = '<span class="spinner"></span> Saving…';
 
   try {
-    const response = await fetch('update_profile.php', {
+    const response = await fetch('../api/update_profile.php', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ phone: phone || null, delivery_address: deliveryAddress })

@@ -82,12 +82,21 @@ document.addEventListener('DOMContentLoaded', () => {
       updateAccountPage();
     }
   });
+
+  const hamburger = document.getElementById('hamburger-btn');
+  const nav = document.getElementById('main-nav');
+  if (hamburger && nav) {
+    hamburger.addEventListener('click', () => {
+      hamburger.classList.toggle('active');
+      nav.classList.toggle('open');
+    });
+  }
 });
 
 // Server session functions
 async function loadSessionData() {
   try {
-    const response = await fetch('session.php');
+    const response = await fetch('../api/session.php');
     const result = await response.json();
     if (result.success) {
       currentUser = result.user || null;
@@ -105,7 +114,7 @@ async function loadSessionData() {
 
 async function saveCartToServer() {
   try {
-    const response = await fetch('cart.php', {
+    const response = await fetch('../api/cart.php', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -190,7 +199,7 @@ function setCurrentUser(user) {
 function logout() {
   currentUser = null;
   cart = [];
-  fetch('logout.php', { method: 'POST' }).catch(() => {});
+  fetch('../api/logout.php', { method: 'POST' }).catch(() => {});
   updateAccountLink();
   updateCartBadge();
 }

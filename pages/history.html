@@ -4,38 +4,33 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Order History - Craveh</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="../css/app.css">
+  <link rel="stylesheet" href="../assets/css/app.css">
 </head>
 <body>
-  <!-- Header -->
   <header class="header">
     <div class="container header-container">
       <div class="logo">
-        <img src="../resources/craveh(1).png" alt="Craveh logo" height="40">
+        <img src="../assets/images/craveh(1).png" alt="Craveh logo">
         <h1>craveh</h1>
       </div>
-      <nav class="nav">
+      <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
+      <nav class="nav" id="main-nav">
         <a href="menu.html" class="nav-link">Menu</a>
         <a href="history.html" class="nav-link active">History</a>
-        <a href="checkout.html" class="nav-link">
-          Checkout
-          <span id="cart-count" class="cart-badge">0</span>
-        </a>
+        <a href="checkout.html" class="nav-link">Checkout <span id="cart-count" class="cart-badge">0</span></a>
         <a href="account.html" class="nav-link" id="account-link">Account</a>
       </nav>
     </div>
   </header>
 
-  <!-- Main Content -->
+
   <main class="main-content">
     <div class="container">
-      <h2 class="page-title">Order History</h2>
       <div id="history-content"></div>
     </div>
   </main>
-
-  <script src="../js/common.js"></script>
-  <script src="../js/history.js"></script>
+  <footer class="footer"><div class="container">&copy; 2025 <span class="footer-brand">Craveh</span>. All rights reserved.</div></footer>
+  <script src="../assets/js/common.js"></script>
+  <script src="../assets/js/history.js"></script>
 </body>
 </html>

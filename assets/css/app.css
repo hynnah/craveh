@@ -776,14 +776,10 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: #fff;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  color: var(--foreground);
   font-size: 0.7rem;
   font-weight: 700;
   min-width: 24px;
-  box-shadow: 0 2px 4px rgba(255, 107, 53, 0.3);
 }
 .order-item span:last-child { color: var(--muted-foreground); font-weight: 500; }
 .order-footer { padding-top: 0.85rem; border-top: 1px solid var(--border); display: flex; justify-content: space-between; }

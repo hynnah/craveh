@@ -10,13 +10,23 @@ function getDbConnection() {
     $mysqli = new mysqli($dbHost, $dbUser, $dbPass);
     if ($mysqli->connect_error) {
         http_response_code(500);
-        echo json_encode(['success' => false, 'error' => 'Database connection failed']);
+        echo json_encode(['success' => false, 'error' => 'Database connection failed: ' . $mysqli->connect_error]);
         exit;
     }
 
     $mysqli->set_charset('utf8mb4');
-    $mysqli->query("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
-    $mysqli->select_db($dbName);
+    
+    if (!$mysqli->query("CREATE DATABASE IF NOT EXISTS `$dbName` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci")) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Could not create database: ' . $mysqli->error]);
+        exit;
+    }
+    
+    if (!$mysqli->select_db($dbName)) {
+        http_response_code(500);
+        echo json_encode(['success' => false, 'error' => 'Could not select database: ' . $mysqli->error]);
+        exit;
+    }
 
     $mysqli->query("CREATE TABLE IF NOT EXISTS `users` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,
@@ -24,19 +34,12 @@ function getDbConnection() {
         `password_hash` VARCHAR(255) NOT NULL,
         `name` VARCHAR(255) NOT NULL,
         `phone` VARCHAR(50),
-        `delivery_address` TEXT,
-        `role` ENUM('customer', 'admin') DEFAULT 'customer',
+        `role` ENUM('admin', 'customer') DEFAULT 'customer',
+        `delivery_address` JSON,
         `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-        INDEX idx_email (email),
-        INDEX idx_role (role)
-    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
-
-    $result = $mysqli->query("SHOW COLUMNS FROM `users` LIKE 'role'");
-    if ($result && $result->num_rows === 0) {
-        $mysqli->query("ALTER TABLE `users` ADD COLUMN `role` ENUM('customer', 'admin') DEFAULT 'customer' AFTER `delivery_address`");
-        $mysqli->query("ALTER TABLE `users` ADD INDEX idx_role (role)");
-    }
+        INDEX idx_email (email)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;");
 
     $mysqli->query("CREATE TABLE IF NOT EXISTS `client_orders` (
         `id` INT AUTO_INCREMENT PRIMARY KEY,

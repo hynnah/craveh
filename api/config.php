@@ -90,8 +90,11 @@ function getDbConnection() {
 }
 
 function parseUserRow($user) {
-    if ($user && $user['delivery_address']) {
-        $user['delivery_address'] = json_decode($user['delivery_address'], true);
+    if ($user && isset($user['delivery_address']) && !empty($user['delivery_address'])) {
+        $decoded = json_decode($user['delivery_address'], true);
+        $user['delivery_address'] = $decoded !== null ? $decoded : null;
+    } else {
+        $user['delivery_address'] = null;
     }
     return $user;
 }

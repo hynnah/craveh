@@ -2,6 +2,7 @@
 
 let activeCategory = 'All';
 let searchQuery = '';
+let previousMenuItems = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadMenuItems();
@@ -18,9 +19,15 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Auto-refresh menu items every 3 seconds
   setInterval(async () => {
+    const oldItems = JSON.stringify(MENU_ITEMS);
     await loadMenuItems();
-    renderCategoryFilter();
-    renderMenu();
+    const newItems = JSON.stringify(MENU_ITEMS);
+    
+    // Only re-render if data actually changed
+    if (oldItems !== newItems) {
+      renderCategoryFilter();
+      renderMenu();
+    }
   }, 3000);
 });
 

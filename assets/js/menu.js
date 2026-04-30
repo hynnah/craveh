@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderMenu();
     });
   }
+
+  // Auto-refresh menu items every 3 seconds
+  setInterval(async () => {
+    await loadMenuItems();
+    renderCategoryFilter();
+    renderMenu();
+  }, 3000);
 });
 
 function getFilteredItems() {

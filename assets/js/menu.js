@@ -3,7 +3,8 @@
 let activeCategory = 'All';
 let searchQuery = '';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadMenuItems();
   renderCategoryFilter();
   renderMenu();
 

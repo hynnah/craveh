@@ -70,6 +70,24 @@ let MENU_ITEMS = [
 let currentUser = null;
 let cart = [];
 
+async function loadMenuItems() {
+  try {
+    const response = await fetch('../api/menu_items.php');
+    const result = await response.json();
+    if (!response.ok || !result.success || !Array.isArray(result.items)) {
+      throw new Error(result.error || 'Failed to load menu items');
+    }
+
+    MENU_ITEMS = result.items.map(item => ({
+      ...item,
+      id: String(item.id),
+      price: Number(item.price)
+    }));
+  } catch (error) {
+    console.error('Failed to load menu items from database', error);
+  }
+}
+
 // Initialize on page load
 const sessionDataPromise = loadSessionData();
 window.sessionDataPromise = sessionDataPromise;
@@ -214,4 +232,3 @@ function updateAccountLink() {
     }
   }
 }
-

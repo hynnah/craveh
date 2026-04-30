@@ -78,7 +78,15 @@ function getDbConnection() {
             ['Spaghetti Carbonara', 'Creamy pasta with bacon and parmesan', 13.99, 'https://images.unsplash.com/photo-1612874742237-6526221588e3?w=400&h=300&fit=crop', 'Pasta'],
             ['Fish & Chips', 'Crispy battered fish with golden fries', 15.99, 'https://images.unsplash.com/photo-1579208575657-c595a05383b7?w=400&h=300&fit=crop', 'Seafood'],
             ['BBQ Ribs', 'Tender ribs with smoky BBQ sauce', 18.99, 'https://images.unsplash.com/photo-1544025162-d76694265947?w=400&h=300&fit=crop', 'BBQ'],
-            ['Tacos', 'Three soft tacos with your choice of protein', 10.99, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&h=300&fit=crop', 'Mexican']
+            ['Tacos', 'Three soft tacos with your choice of protein', 10.99, 'https://images.unsplash.com/photo-1565299585323-38d6b0865b47?w=400&h=300&fit=crop', 'Mexican'],
+            ['Pepperoni Pizza', 'Classic pepperoni with mozzarella cheese', 15.99, 'https://images.unsplash.com/photo-1628840042765-356cda07504e?w=400&h=300&fit=crop', 'Pizza'],
+            ['Grilled Salmon', 'Fresh Atlantic salmon with herbs', 19.99, 'https://images.unsplash.com/photo-1485921325833-c519f76c4927?w=400&h=300&fit=crop', 'Seafood'],
+            ['Chicken Alfredo', 'Fettuccine pasta with creamy alfredo sauce', 14.99, 'https://images.unsplash.com/photo-1645112411341-6c4fd023714a?w=400&h=300&fit=crop', 'Pasta'],
+            ['Greek Salad', 'Fresh vegetables with feta cheese and olives', 10.99, 'https://images.unsplash.com/photo-1540189549336-e6e99c3679fe?w=400&h=300&fit=crop', 'Salads'],
+            ['Cheeseburger', 'Double beef patty with melted cheddar cheese', 13.99, 'https://images.unsplash.com/photo-1572802419224-296b0aeee0d9?w=400&h=300&fit=crop', 'Burgers'],
+            ['Hawaiian Pizza', 'Ham and pineapple with mozzarella', 15.99, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', 'Pizza'],
+            ['Mozzarella Sticks', 'Crispy breaded mozzarella with marinara', 8.99, 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=400&h=300&fit=crop', 'Appetizers'],
+            ['Beef Burrito', 'Large flour tortilla filled with seasoned beef', 12.99, 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=400&h=300&fit=crop', 'Mexican']
         ];
         
         foreach ($defaultItems as $item) {

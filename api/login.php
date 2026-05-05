@@ -19,7 +19,7 @@ foreach ($requiredFields as $field) {
     }
 }
 
-$mysqli = getDbConnection();
+$mysqli = $conn;
 
 $stmt = $mysqli->prepare('SELECT id, email, name, phone, delivery_address, password_hash, created_at FROM users WHERE email = ?');
 if (!$stmt) {
@@ -47,7 +47,15 @@ if (!password_verify($input['password'], $user['password_hash'])) {
 }
 
 unset($user['password_hash']);
-$user = parseUserRow($user);
+
+// Parse delivery_address JSON
+if ($user && isset($user['delivery_address']) && !empty($user['delivery_address'])) {
+    $decoded = json_decode($user['delivery_address'], true);
+    $user['delivery_address'] = $decoded !== null ? $decoded : null;
+} else {
+    $user['delivery_address'] = null;
+}
+
 $stmt->close();
 $mysqli->close();
 

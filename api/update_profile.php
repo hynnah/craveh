@@ -17,7 +17,7 @@ if (!is_array($input)) {
     exit;
 }
 
-$mysqli = getDbConnection();
+$mysqli = $conn;
 
 $phone = isset($input['phone']) && $input['phone'] !== null ? trim($input['phone']) : null;
 $deliveryAddress = isset($input['delivery_address']) && is_array($input['delivery_address'])
@@ -52,7 +52,15 @@ if (!$sel) {
 $sel->bind_param('i', $userId);
 $sel->execute();
 $result = $sel->get_result();
-$user = parseUserRow($result->fetch_assoc());
+$user = $result->fetch_assoc();
+
+if ($user && isset($user['delivery_address']) && !empty($user['delivery_address'])) {
+    $decoded = json_decode($user['delivery_address'], true);
+    $user['delivery_address'] = $decoded !== null ? $decoded : null;
+} else {
+    $user['delivery_address'] = null;
+}
+
 $sel->close();
 $mysqli->close();
 

@@ -43,7 +43,7 @@ if ($input['userId'] != $_SESSION['user']['id']) {
     exit;
 }
 
-$mysqli = getDbConnection();
+$mysqli = $conn;
 
 $totalAmount = 0.0;
 foreach ($input['items'] as $item) {

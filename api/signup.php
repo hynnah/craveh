@@ -1,4 +1,7 @@
 <?php
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 header('Content-Type: application/json');
 session_start();
 require_once __DIR__ . '/config.php';
@@ -19,7 +22,13 @@ foreach ($requiredFields as $field) {
     }
 }
 
-$mysqli = getDbConnection();
+if (!isset($conn) || !$conn) {
+    http_response_code(500);
+    echo json_encode(['success' => false, 'error' => 'Database connection failed']);
+    exit;
+}
+
+$mysqli = $conn;
 
 $stmt = $mysqli->prepare('SELECT id FROM users WHERE email = ?');
 if (!$stmt) {
@@ -68,7 +77,16 @@ if (!$selectStmt) {
 $selectStmt->bind_param('i', $userId);
 $selectStmt->execute();
 $result = $selectStmt->get_result();
-$user = parseUserRow($result->fetch_assoc());
+$user = $result->fetch_assoc();
+
+// Parse delivery_address JSON
+if ($user && isset($user['delivery_address']) && !empty($user['delivery_address'])) {
+    $decoded = json_decode($user['delivery_address'], true);
+    $user['delivery_address'] = $decoded !== null ? $decoded : null;
+} else {
+    $user['delivery_address'] = null;
+}
+
 $selectStmt->close();
 $mysqli->close();
 

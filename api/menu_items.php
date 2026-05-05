@@ -2,7 +2,7 @@
 header('Content-Type: application/json');
 require_once __DIR__ . '/config.php';
 
-$mysqli = getDbConnection();
+$mysqli = $conn;
 
 $result = $mysqli->query(
     "SELECT id, name, description, price, image_url, category

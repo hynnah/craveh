@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
-    $mysqli = getDbConnection();
+    $mysqli = $conn;
     $email = trim($input['email']);
     
     $stmt = $mysqli->prepare("SELECT id, email, password_hash, name, role FROM users WHERE email = ? AND role = 'admin'");

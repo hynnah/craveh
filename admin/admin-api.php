@@ -49,7 +49,7 @@ if ($action === 'upload_image' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-$mysqli = getDbConnection();
+$mysqli = $conn;
 
 // ===== MENU MANAGEMENT =====
 if ($action === 'get_menu_items') {

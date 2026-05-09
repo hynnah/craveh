@@ -42,4 +42,9 @@ if (!$conn) {
 }
 
 mysqli_set_charset($conn, "utf8mb4");
+
+function getDbConnection() {
+    global $conn;
+    return $conn;
+}
 ?>

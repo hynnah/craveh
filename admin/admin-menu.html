@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Menu Management - Craveh Admin</title>
   <link rel="stylesheet" href="admin-app.css">
-  <link rel="icon" href="../assets/images/tabicon.png" type="image/png">
+  <link rel="icon" href="../assets/images/tabicon1.png" type="image/png">
 </head>
 <body>
 
@@ -61,7 +61,7 @@
      <div class="admin-filter-bar">
       <div class="admin-filter-top-row"> <span class="admin-filter-label">Filter by Category:</span>
         <input type="text" id="adminMenuSearch" placeholder="Search items..." 
-              oninput="searchMenu(this.value)" class="admin-form-input search-box" style="margin-right: 10px;">
+              oninput="searchMenu(this.value)" class="admin-form-input search-box">
         <button class="btn btn-primary" onclick="openAddModal()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Add Item
@@ -78,7 +78,7 @@
         <button class="admin-filter-pill" onclick="filterMenu('BBQ', this)">BBQ</button>
         <button class="admin-filter-pill" onclick="filterMenu('Salads', this)">Salads</button>
         <button class="admin-filter-pill" onclick="filterMenu('Desserts', this)">Desserts</button>
-        <button class="admin-filter-pill" onclick="filterMenu('Drinks', this)">Drinks</button>
+        <button class="admin-filter-pill" onclick="filterMenu('Beverages', this)">Beverages</button>
       </div>
     </div>
 
@@ -121,7 +121,7 @@
             <option value="BBQ">BBQ</option>
             <option value="Salads">Salads</option>
             <option value="Desserts">Desserts</option>
-            <option value="Drinks">Drinks</option>
+            <option value="Beverages">Beverages</option>
           </select>
         </div>
       </div>
@@ -176,15 +176,6 @@
     } catch { window.location.href = 'admin-login.html'; }
   }
 
-  /*async function loadMenuItems() {
-    try {
-      const r = await fetch('admin-api.php?action=get_menu_items');
-      const d = await r.json();
-      if (d.success) { renderMenuItems(d.items); }
-      else { showMessage('Failed to load menu items', 'error'); }
-    } catch { showMessage('Error loading menu items', 'error'); }
-  }*/
-
   async function loadMenuItems() {
     try {
       const r = await fetch('admin-api.php?action=get_menu_items');
@@ -214,9 +205,9 @@
 
   function searchMenu(query) {
     const searchTerm = query.toLowerCase();
-    const filtered = allMenuItems.filter(item => 
-      item.name.toLowerCase().includes(searchTerm) || 
-      item.description.toLowerCase().includes(searchTerm)
+    const filtered = allMenuItems.filter(item =>
+      item.name.toLowerCase().includes(searchTerm) ||
+      (item.description || '').toLowerCase().includes(searchTerm)
     );
     renderMenuItems(filtered);
   }
@@ -231,7 +222,7 @@
     items.forEach(item => {
       const avail = parseInt(item.is_available, 10) === 1;
       html += `<div class="admin-menu-card">
-        <div style="position:relative;overflow:hidden;height:175px;">
+        <div class="admin-menu-img-wrap">
           <img src="${item.image_url || ''}" alt="${item.name}" class="admin-menu-img" onerror="this.src='https://via.placeholder.com/300x180?text=No+Image'">
           <span class="admin-menu-cat-badge">${item.category}</span>
         </div>

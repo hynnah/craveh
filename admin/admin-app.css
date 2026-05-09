@@ -97,6 +97,8 @@ body {
   /*box-shadow: 0 2px 8px rgba(255,107,53,0.3);*/
 }
 
+.admin-logo-icon svg { width: 20px; height: 20px; fill: white; }
+
 .admin-logo-name {
   font-family: 'Montserrat', sans-serif;
   font-size: 1.35rem;
@@ -397,8 +399,8 @@ body {
 }
 
 .admin-stat-card.revenue::after { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
-.admin-stat-card.pending::after { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
-.admin-stat-card.today::after  { background: linear-gradient(90deg, #3b82f6, #93c5fd); }
+.admin-stat-card.pending::after { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+.admin-stat-card.today::after  { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
 
 .admin-stat-icon {
   width: 36px;
@@ -412,9 +414,9 @@ body {
 
 .admin-stat-icon svg { width: 17px; height: 17px; }
 
-.revenue .admin-stat-icon { background: var(--secondary); color: var(--primary); }
+.revenue .admin-stat-icon { background: #fef3c7; color: #d97706; }
 .pending .admin-stat-icon { background: #fef3c7; color: #d97706; }
-.today   .admin-stat-icon { background: #dbeafe; color: #2563eb; }
+.today   .admin-stat-icon { background: #fef3c7; color: #d97706; }
 
 .admin-stat-label {
   font-size: 11px;
@@ -532,22 +534,9 @@ tbody tr:hover td { background: #fafafa; }
 .badge-cancelled::before  { background: #ef4444; }
 
 
-/* ══════════════════════════════════════════
-   FILTER BAR (orders page)
-   ══════════════════════════════════════════ 
-.admin-filter-bar {
-  background: var(--background);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  padding: 0.85rem 1.1rem;
-  align-items: center;
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-xs);
-}*/
 .admin-filter-bar {
   display: flex;
-  flex-direction: column; /* Stacks the label on top of the buttons */
+  flex-direction: column;
   gap: 12px;
   margin-bottom: 24px;
   padding: 16px;
@@ -557,19 +546,28 @@ tbody tr:hover td { background: #fafafa; }
 
 .admin-filter-top-row {
   display: flex;
-  align-items: center; /* Vertical centering */
-  justify-content: flex-start;
+  align-items: center;
+  gap: 0.75rem;
   width: 100%;
-  margin-bottom: 0px;
+  margin-bottom: 0.75rem;
+  flex-wrap: wrap;
 }
 
+/* The search box grows to fill available space, capped at 280px */
 .search-box {
-  margin-left: auto; /* Pushes the search box to the right */
-  max-width: 280px;  /* Keeps it from becoming too long */
-  height: 38px;      /* Matches button heights */
-  padding: 8px 12px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
+  flex: 1;
+  max-width: 280px;
+  height: 36px;
+  padding: 7px 11px;
+  font-size: 13px;
+  border: 1.5px solid var(--border);
+  border-radius: 8px;
+}
+
+/* Push the Add Item button to the far right */
+.admin-filter-top-row .btn {
+  margin-left: auto;
+  flex-shrink: 0;
 }
 .admin-filter-label { font-size: 12px; font-weight: 600; color: var(--muted-foreground); white-space: nowrap; }
 
@@ -640,6 +638,8 @@ tbody tr:hover td { background: #fafafa; }
   transition: all 0.3s var(--ease);
   animation: fadeInUp 0.35s var(--ease) both;
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .admin-order-card:nth-child(2) { animation-delay: 0.05s; }
@@ -670,7 +670,7 @@ tbody tr:hover td { background: #fafafa; }
 
 .admin-order-num { font-size: 0.95rem; font-weight: 700; color: var(--foreground); }
 
-.admin-order-body { padding: 0.9rem 1.1rem; }
+.admin-order-body { padding: 0.9rem 1.1rem; flex: 1; }
 
 .admin-order-meta {
   display: grid;
@@ -808,6 +808,12 @@ tbody tr:hover td { background: #fafafa; }
 
 .admin-menu-card:hover { transform: translateY(-5px); box-shadow: 0 10px 30px rgba(255,107,53,0.12); }
 .admin-menu-card:hover::before { opacity: 1; }
+
+.admin-menu-img-wrap {
+  position: relative;
+  overflow: hidden;
+  height: 175px;
+}
 
 .admin-menu-img {
   width: 100%;
@@ -1374,6 +1380,7 @@ textarea.admin-form-input { resize: vertical; min-height: 80px; }
 @media (max-width: 700px) {
   .admin-sidebar { display: none; }
   .admin-main { padding: 1.25rem 1rem; }
+  .admin-stats-banner { margin: 0 -1rem 1.5rem; padding: 1.5rem 1rem 1.75rem; }
   .admin-stats-row { grid-template-columns: 1fr; }
   .admin-stat-card:last-child { grid-column: auto; }
   .admin-orders-grid { grid-template-columns: 1fr; }

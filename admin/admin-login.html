@@ -4,159 +4,106 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Login - Craveh</title>
-  <link rel="stylesheet" href="../assets/css/app.css">
-  <style>
-    .login-container {
-      max-width: 400px;
-      margin: 50px auto;
-      padding: 30px;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .login-container h1 {
-      text-align: center;
-      margin-bottom: 30px;
-      color: #333;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .form-group input {
-      width: 100%;
-      padding: 10px;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      font-size: 14px;
-      box-sizing: border-box;
-    }
-
-    .form-group input:focus {
-      outline: none;
-      border-color: #34495e;
-      box-shadow: 0 0 5px rgba(76, 175, 80, 0.3);
-    }
-
-    .login-btn {
-      width: 100%;
-      padding: 12px;
-      background-color: #34495e;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: background-color 0.3s;
-    }
-
-    .login-btn:hover {
-      background-color: #2c3e50;
-    }
-
-    .login-btn:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
-    }
-
-    .error-message {
-      color: #d32f2f;
-      text-align: center;
-      margin-bottom: 15px;
-      padding: 10px;
-      background-color: #ffebee;
-      border-radius: 4px;
-      display: none;
-    }
-
-    .error-message.show {
-      display: block;
-    }
-
-    .back-link {
-      text-align: center;
-      margin-top: 15px;
-    }
-
-    .back-link a {
-      color: #34495e;
-      text-decoration: none;
-      font-size: 14px;
-    }
-
-    .back-link a:hover {
-      text-decoration: underline;
-    }
-  </style>
+  <link rel="stylesheet" href="admin-app.css">
+  <link rel="icon" href="../assets/images/tabicon.png" type="image/png">
 </head>
-<body>
-  <div class="login-container">
-    <h1>Craveh Admin</h1>
-    <div class="error-message" id="errorMessage"></div>
-    
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" name="email" required placeholder="admin@craveh.com">
-      </div>
+<body class="admin-login-page">
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Enter password">
-      </div>
-
-      <button type="submit" class="login-btn">Login</button>
-    </form>
-
-    <div class="back-link">
-      <a href="index-redirect.html">← Back to Customer Site</a>
+<div class="admin-login-wrap">
+  <div class="admin-login-brand">
+    <div class="admin-login-brand-icon">
+      <img src="../assets/images/craveh(1).png" alt="craveh" style="width:75px;height:75px;display:block;">    
     </div>
+    <span class="admin-login-brand-name">craveh</span>
+    <span class="admin-login-brand-sub">Admin Portal</span>
   </div>
 
-  <script>
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
-      const errorDiv = document.getElementById('errorMessage');
-      const submitBtn = e.target.querySelector('button');
+  <div class="admin-login-card">
+    <div class="admin-login-card-title">Welcome back</div>
+    <div class="admin-login-card-sub">Sign in to your admin account</div>
 
-      submitBtn.disabled = true;
-      errorDiv.classList.remove('show');
+    <div class="admin-login-error" id="errorMessage">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      <span id="errorText"></span>
+    </div>
 
-      try {
-        const response = await fetch('admin-login.php', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
+    <form id="loginForm">
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="email">Email</label>
+        <input class="admin-form-input" type="email" id="email" name="email" required placeholder="admin@craveh.com" autocomplete="email">
+      </div>
+      <div class="admin-form-group">
+        <label class="admin-form-label" for="password">Password</label>
+        <div class="admin-pw-wrap">
+          <input class="admin-form-input" type="password" id="password" name="password" required placeholder="Enter password" autocomplete="current-password">
+          <button type="button" class="admin-toggle-pw" onclick="togglePassword()">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+      <button type="submit" class="admin-login-btn" id="loginBtn">Sign in</button>
+    </form>
+  </div>
 
-        const data = await response.json();
+  <div class="admin-back-link">
+    <a href="index-redirect.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+      Back to customer site
+    </a>
+  </div>
+</div>
 
-        if (data.success) {
-          window.location.href = 'admin-dashboard.html';
-        } else {
-          errorDiv.textContent = data.error || 'Login failed';
-          errorDiv.classList.add('show');
-        }
-      } catch (error) {
-        console.error('Login error:', error);
-        errorDiv.textContent = 'An error occurred. Please try again.';
+<script>
+  function togglePassword() {
+    const pw = document.getElementById('password');
+    const icon = document.getElementById('eyeIcon');
+    if (pw.type === 'password') {
+      pw.type = 'text';
+      icon.innerHTML = `<path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>`;
+    } else {
+      pw.type = 'password';
+      icon.innerHTML = `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`;
+    }
+  }
+
+  document.getElementById('loginForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const errorDiv = document.getElementById('errorMessage');
+    const errorText = document.getElementById('errorText');
+    const btn = document.getElementById('loginBtn');
+
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    errorDiv.classList.remove('show');
+
+    try {
+      const response = await fetch('admin-login.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password })
+      });
+      const data = await response.json();
+      if (data.success) {
+        btn.textContent = 'Redirecting…';
+        window.location.href = 'admin-dashboard.html';
+      } else {
+        errorText.textContent = data.error || 'Login failed. Please check your credentials.';
         errorDiv.classList.add('show');
-      } finally {
-        submitBtn.disabled = false;
+        btn.disabled = false;
+        btn.textContent = 'Sign in';
       }
-    });
-  </script>
+    } catch {
+      errorText.textContent = 'An error occurred. Please try again.';
+      errorDiv.classList.add('show');
+      btn.disabled = false;
+      btn.textContent = 'Sign in';
+    }
+  });
+</script>
 </body>
 </html>

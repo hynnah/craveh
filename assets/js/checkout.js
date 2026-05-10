@@ -47,7 +47,7 @@ function renderCheckout() {
               <img src="${item.image || ''}" alt="${escapeHtml(item.name)}" class="checkout-item-image">
               <div class="checkout-item-details">
                 <span class="checkout-item-name">${escapeHtml(item.name)}</span>
-                <span class="checkout-item-price">$${item.price.toFixed(2)} each</span>
+                <span class="checkout-item-price">₱${item.price.toFixed(2)} each</span>
               </div>
             </div>
             <div class="checkout-item-controls">
@@ -56,7 +56,7 @@ function renderCheckout() {
                 <span class="quantity-display">${item.quantity}</span>
                 <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="increase">+</button>
               </div>
-              <span class="checkout-total-amount" style="min-width: 70px; text-align: right;">$${(item.price * item.quantity).toFixed(2)}</span>
+              <span class="checkout-total-amount" style="min-width: 70px; text-align: right;">₱${(item.price * item.quantity).toFixed(2)}</span>
               <button class="btn-remove" data-id="${escapeHtml(item.id)}" title="Remove item">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
@@ -68,7 +68,7 @@ function renderCheckout() {
         `).join('')}
         <div class="checkout-total">
           <span>Total</span>
-          <span class="checkout-total-amount">$${total.toFixed(2)}</span>
+          <span class="checkout-total-amount">₱${total.toFixed(2)}</span>
         </div>
         <div class="checkout-delivery-notice">
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -212,7 +212,7 @@ function renderCheckout() {
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
-      Place Order - $${total.toFixed(2)}
+      Place Order - ₱${total.toFixed(2)}
     </button>
   `;
 

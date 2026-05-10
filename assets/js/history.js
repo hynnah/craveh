@@ -127,7 +127,7 @@ async function renderHistory() {
               <span class="item-qty-badge">${item.quantity}</span>
               ${item.name}
             </span>
-            <span class="order-item-price">$${(item.price * item.quantity).toFixed(2)}</span>
+            <span class="order-item-price">₱${(item.price * item.quantity).toFixed(2)}</span>
           </div>
         `).join('')}
       </div>
@@ -151,7 +151,7 @@ async function renderHistory() {
         </div>
         <div class="order-total">
           <p class="order-footer-label">Order Total</p>
-          <p class="order-total-amount">$${order.total_amount.toFixed(2)}</p>
+          <p class="order-total-amount">₱${order.total_amount.toFixed(2)}</p>
           <p class="order-payment-method">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>

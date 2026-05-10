@@ -397,8 +397,8 @@ body {
 }
 
 .admin-stat-card.revenue::after { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
-.admin-stat-card.pending::after { background: linear-gradient(90deg, #f59e0b, #fcd34d); }
-.admin-stat-card.today::after  { background: linear-gradient(90deg, #3b82f6, #93c5fd); }
+.admin-stat-card.pending::after { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
+.admin-stat-card.today::after  { background: linear-gradient(90deg, var(--primary), var(--primary-light)); }
 
 .admin-stat-icon {
   width: 36px;
@@ -413,8 +413,8 @@ body {
 .admin-stat-icon svg { width: 17px; height: 17px; }
 
 .revenue .admin-stat-icon { background: #fff5f2; color: var(--primary); }
-.pending .admin-stat-icon { background: #fef3c7; color: #d97706; }
-.today   .admin-stat-icon { background: #eff6ff; color: #3b82f6; }
+.pending .admin-stat-icon { background: #fff5f2; color: var(--primary); }
+.today   .admin-stat-icon { background: #fff5f2; color: var(--primary); }
 
 .admin-stat-label {
   font-size: 11px;

@@ -499,7 +499,7 @@ body {
   gap: 0.25rem;
 }
 .menu-item-price::before {
-  content: '$';
+  content: '₱';
   font-size: 0.85rem;
   opacity: 0.8;
 }

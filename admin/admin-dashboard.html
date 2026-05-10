@@ -112,7 +112,7 @@
       const r = await fetch('admin-api.php?action=get_stats');
       const d = await r.json();
       if (d.success) {
-        document.getElementById('todayRevenue').textContent = '$' + parseFloat(d.todayRevenue).toFixed(2);
+        document.getElementById('todayRevenue').textContent = '₱' + parseFloat(d.todayRevenue).toFixed(2);
         document.getElementById('pendingOrders').textContent = d.pendingOrders;
         document.getElementById('totalOrdersToday').textContent = d.totalOrdersToday;
         renderRecentOrders(d.recentOrders);
@@ -130,7 +130,7 @@
       const time = new Date(order.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
       html += `<tr>
         <td><span class="admin-order-num">#${order.id}</span></td>
-        <td>$${parseFloat(order.total_amount).toFixed(2)}</td>
+        <td>₱${parseFloat(order.total_amount).toFixed(2)}</td>
         <td><span class="badge badge-${order.status}">${fmt(order.status)}</span></td>
         <td>${time}</td>
       </tr>`;

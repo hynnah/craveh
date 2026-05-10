@@ -76,6 +76,7 @@
         <button class="admin-filter-pill" onclick="filterMenu('Pasta', this)">Pasta</button>
         <button class="admin-filter-pill" onclick="filterMenu('Mexican', this)">Mexican</button>
         <button class="admin-filter-pill" onclick="filterMenu('BBQ', this)">BBQ</button>
+        <button class="admin-filter-pill" onclick="filterMenu('Seafood', this)">Seafood</button>
         <button class="admin-filter-pill" onclick="filterMenu('Salads', this)">Salads</button>
         <button class="admin-filter-pill" onclick="filterMenu('Desserts', this)">Desserts</button>
         <button class="admin-filter-pill" onclick="filterMenu('Beverages', this)">Beverages</button>
@@ -106,7 +107,7 @@
       </div>
       <div class="admin-form-row">
         <div class="admin-form-group">
-          <label class="admin-form-label" for="itemPrice">Price ($) <span class="required">*</span></label>
+          <label class="admin-form-label" for="itemPrice">Price (₱) <span class="required">*</span></label>
           <input class="admin-form-input" type="number" id="itemPrice" step="0.01" min="0" placeholder="0.00" required>
         </div>
         <div class="admin-form-group">
@@ -119,6 +120,7 @@
             <option value="Pasta">Pasta</option>
             <option value="Mexican">Mexican</option>
             <option value="BBQ">BBQ</option>
+            <option value="Seafood">Seafood</option>
             <option value="Salads">Salads</option>
             <option value="Desserts">Desserts</option>
             <option value="Beverages">Beverages</option>
@@ -230,7 +232,7 @@
           <div class="admin-menu-name">${item.name}</div>
           <div class="admin-menu-desc">${item.description || 'No description'}</div>
           <div class="admin-menu-footer">
-            <span class="admin-menu-price">$${parseFloat(item.price).toFixed(2)}</span>
+            <span class="admin-menu-price">₱${parseFloat(item.price).toFixed(2)}</span>
             <span class="admin-avail-pill ${avail ? 'avail-yes' : 'avail-no'}">${avail ? 'Available' : 'Unavailable'}</span>
           </div>
           <div class="admin-menu-actions">

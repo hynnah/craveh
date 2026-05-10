@@ -125,7 +125,7 @@
         order.items.forEach(item => {
           itemsHtml += `<div class="admin-item-row">
             <span class="admin-item-name">${item.name || item.menuItemId} ×${item.quantity}</span>
-            <span class="admin-item-price">$${parseFloat(item.price).toFixed(2)}</span>
+            <span class="admin-item-price">₱${parseFloat(item.price).toFixed(2)}</span>
           </div>`;
         });
       }
@@ -148,7 +148,7 @@
           </div>
           <div class="admin-order-total">
             <span class="admin-total-label">Order Total</span>
-            <span class="admin-total-val">$${parseFloat(order.total_amount).toFixed(2)}</span>
+            <span class="admin-total-val">₱${parseFloat(order.total_amount).toFixed(2)}</span>
           </div>
         </div>
         <div class="admin-order-footer">

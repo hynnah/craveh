@@ -6,14 +6,15 @@
   <title>Menu - Craveh</title>
   <link rel="stylesheet" href="../assets/css/app.css">
   <link rel="icon" href="../assets/images/tabicon.png" type="image/png">
-
 </head>
 <body>
   <header class="header">
     <div class="container header-container">
       <div class="logo">
-        <img src="../assets/images/craveh(1).png" alt="Craveh logo">
-        <h1>craveh</h1>
+        <a href="menu.html" style="display:flex; align-items:center;">
+          <img src="../assets/images/craveh(1).png" alt="Craveh logo">
+        </a>
+        <h1 id="logo-text" style="cursor:default; user-select:none;">craveh</h1>
       </div>
       <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu"><span></span><span></span><span></span></button>
       <nav class="nav" id="main-nav">
@@ -50,7 +51,43 @@
   </main>
 
   <footer class="footer"><div class="container">&copy; 2026 <span class="footer-brand">Craveh</span>. All rights reserved.</div></footer>
+
   <script src="../assets/js/common.js"></script>
   <script src="../assets/js/menu.js"></script>
+
+  <script>
+    // easter egg!!! mwheheheh
+    // click "craveh" text 7 times to access admin login page
+    (function () {
+      const logoText = document.getElementById('logo-text');
+      let clickCount = 0;
+      let resetTimer = null;
+      const REQUIRED_CLICKS = 7;
+      const RESET_DELAY = 2000;
+
+      logoText.addEventListener('click', function () {
+        clickCount++;
+
+        clearTimeout(resetTimer);
+
+        logoText.style.transition = 'color 0.15s ease';
+        logoText.style.color = '#ff9a6c';
+        setTimeout(() => { logoText.style.color = ''; }, 150);
+
+        if (clickCount >= REQUIRED_CLICKS) {
+          logoText.style.color = '#ffffff';
+          setTimeout(() => {
+            window.location.href = '../admin/admin-login.html';
+          }, 250);
+          clickCount = 0;
+          return;
+        }
+
+        resetTimer = setTimeout(() => {
+          clickCount = 0;
+        }, RESET_DELAY);
+      });
+    })();
+  </script>
 </body>
 </html>

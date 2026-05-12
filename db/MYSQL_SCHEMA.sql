@@ -92,3 +92,19 @@ INSERT INTO menu_items (name, description, price, image_url, category) VALUES
 ('Hawaiian Pizza', 'Ham and pineapple with mozzarella', 15.99, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&h=300&fit=crop', 'Pizza'),
 ('Mozzarella Sticks', 'Crispy breaded mozzarella with marinara', 8.99, 'https://images.unsplash.com/photo-1531749668029-2db88e4276c7?w=400&h=300&fit=crop', 'Appetizers'),
 ('Beef Burrito', 'Large flour tortilla filled with seasoned beef', 12.99, 'https://images.unsplash.com/photo-1626700051175-6818013e1d4f?w=400&h=300&fit=crop', 'Mexican');
+
+INSERT INTO `menu_items` (`name`, `description`, `price`, `image_url`, `category`, `is_available`) VALUES
+ 
+-- ── Beverages ──────────────────────────────────────────────
+('Fresh Lemonade',       'Freshly squeezed lemon juice with a hint of mint',          3.99,  'https://images.unsplash.com/photo-1621263764928-df1444c5e859?w=400&h=300&fit=crop', 'Beverages', 1),
+('Iced Coffee',          'Cold-brewed coffee over ice, served with milk',              4.49,  'https://images.unsplash.com/photo-1461023058943-07fcbe16d735?w=400&h=300&fit=crop', 'Beverages', 1),
+('Mango Smoothie',       'Blended fresh mango with yogurt and honey',                  4.99,  'https://images.unsplash.com/photo-1623065422902-30a2d299bbe4?w=400&h=300&fit=crop', 'Beverages', 1),
+('Classic Milkshake',    'Thick and creamy shake — choose chocolate, vanilla, or strawberry', 5.49, 'https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=400&h=300&fit=crop', 'Beverages', 1),
+ 
+-- ── Desserts ───────────────────────────────────────────────
+('Chocolate Lava Cake',  'Warm chocolate cake with a gooey molten center',             6.99,  'https://images.unsplash.com/photo-1563805042-7684c019e1cb?w=400&h=300&fit=crop', 'Desserts', 1),
+('Classic Cheesecake',   'New York-style cheesecake with a buttery graham crust',      5.99,  'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop', 'Desserts', 1),
+('Vanilla Ice Cream',    'Two scoops of creamy vanilla bean ice cream',                3.99,  'https://images.unsplash.com/photo-1570197788417-0e82375c9371?w=400&h=300&fit=crop', 'Desserts', 1),
+('Tiramisu',             'Italian classic with espresso-soaked ladyfingers and mascarpone', 6.49, 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop', 'Desserts', 1),
+('Churros',              'Crispy fried dough dusted with cinnamon sugar, served with chocolate dip', 4.99, 'https://images.unsplash.com/photo-1624371414361-e670edf4088e?w=400&h=300&fit=crop', 'Desserts', 1);
+ 

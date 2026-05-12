@@ -137,7 +137,8 @@
         </div>
         <div class="admin-order-body">
           <div class="admin-order-meta">
-            <div class="admin-meta-row"><span class="admin-meta-key">Customer&nbsp;</span><span class="admin-meta-val">#${order.client_user_id}</span></div>
+            <div class="admin-meta-row" style="grid-column:1/-1"><span class="admin-meta-key">Customer&nbsp;</span><span class="admin-meta-val" style="font-weight:600;color:#2c3e50;">${order.customer_name || 'Guest'}</span></div>
+            <div class="admin-meta-row"><span class="admin-meta-key">ID&nbsp;</span><span class="admin-meta-val">#${order.client_user_id}</span></div>
             <div class="admin-meta-row"><span class="admin-meta-key">Date&nbsp;</span><span class="admin-meta-val">${dateStr}</span></div>
             <div class="admin-meta-row" style="grid-column:1/-1"><span class="admin-meta-key">Phone&nbsp;&nbsp;&nbsp;</span><span class="admin-meta-val">${order.phone}</span></div>
             <div class="admin-meta-row" style="grid-column:1/-1"><span class="admin-meta-key">Address&nbsp;</span><span class="admin-meta-val">${order.delivery_address}</span></div>

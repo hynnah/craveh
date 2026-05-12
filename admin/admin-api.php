@@ -151,11 +151,13 @@ if ($action === 'delete_menu_item' && $_SERVER['REQUEST_METHOD'] === 'POST') {
 if ($action === 'get_orders') {
     $status = $_GET['status'] ?? null;
     
-    $query = "SELECT id, client_user_id, total_amount, delivery_address, phone, items, status, created_at FROM client_orders";
+    $query = "SELECT co.id, co.client_user_id, co.total_amount, co.delivery_address, co.phone, co.items, co.status, co.created_at, u.name as customer_name 
+              FROM client_orders co 
+              LEFT JOIN users u ON co.client_user_id = u.id";
     if ($status) {
-        $query .= " WHERE status = '" . $mysqli->real_escape_string($status) . "'";
+        $query .= " WHERE co.status = '" . $mysqli->real_escape_string($status) . "'";
     }
-    $query .= " ORDER BY created_at DESC";
+    $query .= " ORDER BY co.created_at DESC";
     
     $result = $mysqli->query($query);
     $orders = [];

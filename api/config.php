@@ -14,7 +14,7 @@ $db_config = [
     ]
 ];
 
-if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'theobscuredindex.cism.org' || $_SERVER['SERVER_NAME'] == 'theobscuredindex.dinnesh-nicole.com')) {
+if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'craveh.dcism.org')) {
     $environment = 'online';
 } else if (isset($_SERVER['SERVER_NAME']) && ($_SERVER['SERVER_NAME'] == 'localhost' || $_SERVER['SERVER_NAME'] == '127.0.0.1')) {
     $environment = 'local';

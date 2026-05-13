@@ -221,8 +221,8 @@ if ($action === 'update_order_status' && $_SERVER['REQUEST_METHOD'] === 'POST') 
 if ($action === 'get_stats') {
     $today = date('Y-m-d');
     
-    // Today's revenue
-    $result = $mysqli->query("SELECT SUM(total_amount) as total FROM client_orders WHERE DATE(created_at) = '$today'");
+    // Today's revenue - only count delivered orders
+    $result = $mysqli->query("SELECT SUM(total_amount) as total FROM client_orders WHERE DATE(created_at) = '$today' AND status = 'delivered'");
     $row = $result->fetch_assoc();
     $todayRevenue = $row['total'] ?? 0;
     

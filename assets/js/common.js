@@ -154,7 +154,10 @@ async function saveCartToServer() {
 // Cart Functions
 function addToCart(itemId) {
   const item = MENU_ITEMS.find(i => i.id === itemId);
-  if (!item) return;
+  if (!item) {
+    console.error('Item not found or no longer available');
+    return false;
+  }
   
   const existingItem = cart.find(i => i.id === itemId);
   if (existingItem) {
@@ -165,6 +168,7 @@ function addToCart(itemId) {
   
   saveCartToServer();
   updateCartBadge();
+  return true;
 }
 
 function removeFromCart(itemId) {

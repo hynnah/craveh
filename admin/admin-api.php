@@ -134,6 +134,20 @@ if ($action === 'delete_menu_item' && $_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     }
 
+    // Check if menu item is in any ongoing orders
+    $checkStmt = $mysqli->prepare("SELECT COUNT(*) as count FROM client_orders WHERE status IN ('pending', 'confirmed', 'preparing', 'out_for_delivery') AND JSON_SEARCH(items, 'one', ?, NULL, '$[*].menuItemId') IS NOT NULL");
+    $checkStmt->bind_param("s", $input['id']);
+    $checkStmt->execute();
+    $result = $checkStmt->get_result();
+    $row = $result->fetch_assoc();
+    $checkStmt->close();
+    
+    if ($row['count'] > 0) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Cannot delete menu item - it is part of ongoing orders']);
+        exit;
+    }
+
     $stmt = $mysqli->prepare("DELETE FROM menu_items WHERE id = ?");
     $stmt->bind_param("i", $input['id']);
     

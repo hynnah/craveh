@@ -203,36 +203,22 @@ function clearCart() {
 
 // Validate cart items against current menu availability
 function validateCartItems() {
-  const unavailableItems = [];
   const availableItemIds = MENU_ITEMS.map(item => item.id);
   
   // Find items in cart that are no longer available
   cart.forEach(cartItem => {
     if (!availableItemIds.includes(cartItem.id)) {
-      unavailableItems.push(cartItem.name);
-      // Mark item as unavailable instead of removing
       cartItem.unavailable = true;
     } else {
-      // Mark item as available
       cartItem.unavailable = false;
     }
   });
   
-  // Show notification if there are unavailable items
-  if (unavailableItems.length > 0) {
+  // Silently update cart without notification
+  if (cart.some(item => item.unavailable)) {
     saveCartToServer();
     updateCartBadge();
-    
-    // Show notification
-    const itemText = unavailableItems.length === 1 ? 'item' : 'items';
-    const itemList = unavailableItems.join(', ');
-    showUnavailableItemNotification(`${unavailableItems.length} ${itemText} no longer available: ${itemList}`);
   }
-}
-
-// Show notification for unavailable items
-function showUnavailableItemNotification(message) {
-  showUnavailableItemsModal(message, false); // false = not from checkout
 }
 
 // Unified modal for unavailable items (used by both cart validation and checkout)

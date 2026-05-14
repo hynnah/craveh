@@ -6,6 +6,8 @@ let previousMenuItems = [];
 
 document.addEventListener('DOMContentLoaded', async () => {
   await loadMenuItems();
+  // Validate cart items on page load
+  validateCartItems();
   renderCategoryFilter();
   renderMenu();
 
@@ -17,7 +19,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Auto-refresh menu items every 3 seconds
+  // Auto-refresh menu items every 2 seconds
   setInterval(async () => {
     const oldItems = JSON.stringify(MENU_ITEMS);
     await loadMenuItems();
@@ -28,7 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       renderCategoryFilter();
       renderMenu();
     }
-  }, 3000);
+  }, 2000);
 });
 
 function getFilteredItems() {

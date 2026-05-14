@@ -57,6 +57,20 @@ if ($user && isset($user['delivery_address']) && !empty($user['delivery_address'
 }
 
 $stmt->close();
+
+// Restore cart from database
+$cartStmt = $mysqli->prepare('SELECT cart_data FROM user_carts WHERE user_id = ?');
+$cartStmt->bind_param('i', $user['id']);
+$cartStmt->execute();
+$cartResult = $cartStmt->get_result();
+if ($cartResult->num_rows > 0) {
+    $cartRow = $cartResult->fetch_assoc();
+    $_SESSION['cart'] = json_decode($cartRow['cart_data'], true) ?? [];
+} else {
+    $_SESSION['cart'] = [];
+}
+$cartStmt->close();
+
 $mysqli->close();
 
 $_SESSION['user'] = $user;

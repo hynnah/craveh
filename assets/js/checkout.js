@@ -2,6 +2,7 @@
 
 document.addEventListener('DOMContentLoaded', async () => {
   await window.sessionDataPromise;
+  await loadMenuItems(); // Load current menu items
   renderCheckout();
 });
 
@@ -346,6 +347,23 @@ function setOrderButtonLoading(loading) {
 
 async function handlePlaceOrder() {
   if (!validateCheckoutFields()) return;
+
+  // Validate cart items are still available before checkout
+  await loadMenuItems();
+  const availableItemIds = MENU_ITEMS.map(item => item.id);
+  const unavailableItems = cart.filter(cartItem => !availableItemIds.includes(cartItem.id));
+  
+  if (unavailableItems.length > 0) {
+    const itemNames = unavailableItems.map(item => item.name).join(', ');
+    showUnavailableItemsModal(itemNames, true); // true = from checkout
+    return;
+  }
+
+  // Check if cart is empty after validation
+  if (cart.length === 0) {
+    showUnavailableItemsModal('Your cart is now empty. Please add items to continue.', true);
+    return;
+  }
 
   const address = buildAddress();
   const phone = document.getElementById('phone-input').value.trim();

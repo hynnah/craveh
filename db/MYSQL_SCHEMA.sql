@@ -108,3 +108,11 @@ INSERT INTO `menu_items` (`name`, `description`, `price`, `image_url`, `category
 ('Tiramisu',             'Italian classic with espresso-soaked ladyfingers and mascarpone', 6.49, 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=400&h=300&fit=crop', 'Desserts', 1),
 ('Churros',              'Crispy fried dough dusted with cinnamon sugar, served with chocolate dip', 4.99, 'https://images.unsplash.com/photo-1624371414361-e670edf4088e?w=400&h=300&fit=crop', 'Desserts', 1);
  
+
+-- User carts table for persistent cart storage
+CREATE TABLE IF NOT EXISTS user_carts (
+    user_id INT PRIMARY KEY,
+    cart_data JSON NOT NULL,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

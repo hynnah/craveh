@@ -43,22 +43,28 @@ function renderCheckout() {
       <div class="checkout-step-header"><span class="checkout-step-number">1</span><h3>Order Summary</h3></div>
       <div>
         ${cart.map(item => `
-          <div class="checkout-item">
+          <div class="checkout-item ${item.unavailable ? 'unavailable' : ''}">
             <div class="checkout-item-info">
-              <img src="${item.image || ''}" alt="${escapeHtml(item.name)}" class="checkout-item-image">
+              <img src="${item.image || ''}" alt="${escapeHtml(item.name)}" class="checkout-item-image" ${item.unavailable ? 'style="opacity: 0.5;"' : ''}>
               <div class="checkout-item-details">
-                <span class="checkout-item-name">${escapeHtml(item.name)}</span>
-                <span class="checkout-item-price">₱${item.price.toFixed(2)} each</span>
+                <span class="checkout-item-name" ${item.unavailable ? 'style="color: #999; text-decoration: line-through;"' : ''}>${escapeHtml(item.name)}</span>
+                <span class="checkout-item-price" ${item.unavailable ? 'style="color: #999;"' : ''}>₱${item.price.toFixed(2)} each</span>
+                ${item.unavailable ? '<span style="color: #dc3545; font-size: 12px; font-weight: 500;">No longer available</span>' : ''}
               </div>
             </div>
             <div class="checkout-item-controls">
-              <div class="quantity-controls">
-                <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="decrease">-</button>
-                <span class="quantity-display">${item.quantity}</span>
-                <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="increase">+</button>
-              </div>
-              <span class="checkout-total-amount" style="min-width: 70px; text-align: right;">₱${(item.price * item.quantity).toFixed(2)}</span>
-              <button class="btn-remove" data-id="${escapeHtml(item.id)}" title="Remove item">
+              ${!item.unavailable ? `
+                <div class="quantity-controls">
+                  <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="decrease">-</button>
+                  <span class="quantity-display">${item.quantity}</span>
+                  <button class="quantity-btn" data-id="${escapeHtml(item.id)}" data-action="increase">+</button>
+                </div>
+                <span class="checkout-total-amount" style="min-width: 70px; text-align: right;">₱${(item.price * item.quantity).toFixed(2)}</span>
+              ` : `
+                <span style="color: #999; font-size: 14px;">Qty: ${item.quantity}</span>
+                <span style="color: #999; text-decoration: line-through; min-width: 70px; text-align: right;">₱${(item.price * item.quantity).toFixed(2)}</span>
+              `}
+              <button class="btn-remove" data-id="${escapeHtml(item.id)}" title="Remove item" style="${item.unavailable ? 'background-color: #dc3545;' : ''}">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <polyline points="3 6 5 6 21 6"></polyline>
                   <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -348,20 +354,21 @@ function setOrderButtonLoading(loading) {
 async function handlePlaceOrder() {
   if (!validateCheckoutFields()) return;
 
-  // Validate cart items are still available before checkout
+  // First validate cart items against current menu
   await loadMenuItems();
-  const availableItemIds = MENU_ITEMS.map(item => item.id);
-  const unavailableItems = cart.filter(cartItem => !availableItemIds.includes(cartItem.id));
   
+  // Check if there are any unavailable items in cart
+  const unavailableItems = cart.filter(item => item.unavailable);
   if (unavailableItems.length > 0) {
     const itemNames = unavailableItems.map(item => item.name).join(', ');
-    showUnavailableItemsModal(itemNames, true); // true = from checkout
+    showUnavailableItemsModal(`Please remove unavailable items: ${itemNames}`, true);
     return;
   }
 
-  // Check if cart is empty after validation
-  if (cart.length === 0) {
-    showUnavailableItemsModal('Your cart is now empty. Please add items to continue.', true);
+  // Check if cart has any available items
+  const availableItems = cart.filter(item => !item.unavailable);
+  if (availableItems.length === 0) {
+    showUnavailableItemsModal('Your cart is empty or all items are unavailable. Please add available items to continue.', true);
     return;
   }
 
@@ -371,7 +378,7 @@ async function handlePlaceOrder() {
 
   const order = {
     userId: user.id,
-    items: cart.map(item => ({
+    items: availableItems.map(item => ({
       menuItemId: item.id,
       name: item.name,
       price: item.price,

@@ -210,19 +210,23 @@ function validateCartItems() {
   cart.forEach(cartItem => {
     if (!availableItemIds.includes(cartItem.id)) {
       unavailableItems.push(cartItem.name);
+      // Mark item as unavailable instead of removing
+      cartItem.unavailable = true;
+    } else {
+      // Mark item as available
+      cartItem.unavailable = false;
     }
   });
   
-  // Remove unavailable items from cart
+  // Show notification if there are unavailable items
   if (unavailableItems.length > 0) {
-    cart = cart.filter(cartItem => availableItemIds.includes(cartItem.id));
     saveCartToServer();
     updateCartBadge();
     
     // Show notification
     const itemText = unavailableItems.length === 1 ? 'item' : 'items';
     const itemList = unavailableItems.join(', ');
-    showUnavailableItemNotification(`${unavailableItems.length} ${itemText} removed from cart: ${itemList}`);
+    showUnavailableItemNotification(`${unavailableItems.length} ${itemText} no longer available: ${itemList}`);
   }
 }
 
@@ -233,6 +237,12 @@ function showUnavailableItemNotification(message) {
 
 // Unified modal for unavailable items (used by both cart validation and checkout)
 function showUnavailableItemsModal(message, isCheckout = true) {
+  // Remove any existing modal first
+  const existingModal = document.getElementById('unavailable-modal-overlay');
+  if (existingModal) {
+    existingModal.remove();
+  }
+
   // Create modal overlay
   const modalOverlay = document.createElement('div');
   modalOverlay.id = 'unavailable-modal-overlay';
@@ -255,51 +265,70 @@ function showUnavailableItemsModal(message, isCheckout = true) {
   const modal = document.createElement('div');
   modal.style.cssText = `
     background: white;
-    border-radius: 12px;
-    padding: 30px;
-    max-width: 450px;
-    width: 90%;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 350px;
+    width: 85%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     transform: scale(0.9);
     transition: transform 0.3s ease;
     text-align: center;
+    position: relative;
   `;
 
-  const title = isCheckout ? 'Cannot Complete Order' : 'Items Removed from Cart';
+  const title = isCheckout ? 'Cannot Complete Order' : 'Items Unavailable';
+  // Extract just the item names from the message for display
+  const itemNames = message.replace(/\d+ items? (removed from cart|no longer available): /, '');
   const description = isCheckout 
-    ? 'The following items in your cart are no longer available and have been removed:'
-    : 'The following items are no longer available and have been automatically removed from your cart:';
+    ? 'Items in your cart are no longer available. Please review your updated cart and try again.'
+    : 'Items are no longer available';
+
+  // Generate unique IDs for this modal instance
+  const modalId = 'modal-' + Date.now();
+  const okBtnId = modalId + '-ok';
+  const closeBtnId = modalId + '-close';
 
   modal.innerHTML = `
-    <div style="margin-bottom: 20px;">
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" style="margin-bottom: 15px;">
+    <button id="${closeBtnId}" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    ">×</button>
+    
+    <div style="margin-bottom: 15px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#dc3545" stroke-width="2" style="margin-bottom: 10px;">
         <circle cx="12" cy="12" r="10"></circle>
         <line x1="15" y1="9" x2="9" y2="15"></line>
         <line x1="9" y1="9" x2="15" y2="15"></line>
       </svg>
-      <h3 style="margin: 0 0 10px 0; color: #dc3545; font-size: 20px;">${title}</h3>
-      <p style="margin: 0 0 20px 0; color: #666; line-height: 1.5;">
+      <h3 style="margin: 0 0 8px 0; color: ${isCheckout ? '#ff8c00' : '#dc3545'}; font-size: 18px;">${title}</h3>
+      <p style="margin: 0 0 15px 0; color: #666; line-height: 1.4; font-size: 14px;">
         ${description}
       </p>
-      <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 20px;">
-        <strong style="color: #dc3545;">${message}</strong>
-      </div>
-      <p style="margin: 0; color: #666; font-size: 14px;">
-        ${isCheckout ? 'Please review your cart and try again.' : 'You can continue browsing our menu.'}
-      </p>
     </div>
-    <div style="display: flex; gap: 10px; justify-content: center;">
-      <button id="modal-ok-btn" style="
-        padding: 12px 24px;
-        background: #007bff;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-      ">OK</button>
-    </div>
+    <button id="${okBtnId}" style="
+      padding: 10px 20px;
+      background: #ff8c00;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: background-color 0.2s;
+    ">OK</button>
   `;
 
   modalOverlay.appendChild(modal);
@@ -311,11 +340,6 @@ function showUnavailableItemsModal(message, isCheckout = true) {
     modal.style.transform = 'scale(1)';
   }, 10);
 
-  // Add event listeners
-  document.getElementById('modal-ok-btn').addEventListener('click', () => {
-    closeModal();
-  });
-
   // Close modal function
   function closeModal() {
     modalOverlay.style.opacity = '0';
@@ -324,8 +348,28 @@ function showUnavailableItemsModal(message, isCheckout = true) {
       if (modalOverlay.parentNode) {
         modalOverlay.parentNode.removeChild(modalOverlay);
       }
+      // Remove escape key listener
+      document.removeEventListener('keydown', escapeHandler);
     }, 300);
   }
+
+  // Add event listeners with unique IDs
+  setTimeout(() => {
+    const okBtn = document.getElementById(okBtnId);
+    const closeBtn = document.getElementById(closeBtnId);
+    
+    if (okBtn) {
+      okBtn.addEventListener('click', closeModal);
+      okBtn.addEventListener('mouseenter', () => okBtn.style.backgroundColor = '#e67e00');
+      okBtn.addEventListener('mouseleave', () => okBtn.style.backgroundColor = '#ff8c00');
+    }
+    
+    if (closeBtn) {
+      closeBtn.addEventListener('click', closeModal);
+      closeBtn.addEventListener('mouseenter', () => closeBtn.style.backgroundColor = '#f0f0f0');
+      closeBtn.addEventListener('mouseleave', () => closeBtn.style.backgroundColor = 'transparent');
+    }
+  }, 50);
 
   // Close on overlay click
   modalOverlay.addEventListener('click', (e) => {
@@ -338,20 +382,27 @@ function showUnavailableItemsModal(message, isCheckout = true) {
   const escapeHandler = (e) => {
     if (e.key === 'Escape') {
       closeModal();
-      document.removeEventListener('keydown', escapeHandler);
     }
   };
   document.addEventListener('keydown', escapeHandler);
 }
 
 function getCartTotal() {
-  return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  return cart.reduce((sum, item) => {
+    // Only count available items in total
+    if (item.unavailable) return sum;
+    return sum + (item.price * item.quantity);
+  }, 0);
 }
 
 function updateCartBadge() {
   const badge = document.getElementById('cart-count');
   if (badge) {
-    const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+    // Only count available items in badge
+    const totalItems = cart.reduce((sum, item) => {
+      if (item.unavailable) return sum;
+      return sum + item.quantity;
+    }, 0);
     badge.textContent = totalItems;
   }
 }

@@ -159,12 +159,50 @@ async function renderHistory() {
             </svg>
             Cash on Delivery
           </p>
+          ${(order.status === 'pending' || order.status === 'confirmed') ? `
+            <button class="cancel-order-btn" data-order-id="${order.id}" style="
+              margin-top: 10px;
+              padding: 8px 16px;
+              background-color: #dc3545;
+              color: white;
+              border: none;
+              border-radius: 4px;
+              cursor: pointer;
+              font-size: 12px;
+              font-weight: 500;
+              transition: background-color 0.2s;
+              position: relative;
+              z-index: 10;
+              pointer-events: auto;
+            ">
+              Cancel Order
+            </button>
+          ` : ''}
         </div>
       </div>
     </div>
   `}).join('');
 
   historyContent.innerHTML = `<div class="orders-list">${ordersHTML}</div>`;
+  
+  // Add event listeners for cancel buttons
+  document.querySelectorAll('.cancel-order-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      const orderId = parseInt(e.target.getAttribute('data-order-id'));
+      console.log('Cancel button clicked for order:', orderId);
+      cancelOrder(orderId);
+    });
+    
+    // Add hover effects
+    btn.addEventListener('mouseenter', (e) => {
+      e.target.style.backgroundColor = '#c82333';
+    });
+    btn.addEventListener('mouseleave', (e) => {
+      e.target.style.backgroundColor = '#dc3545';
+    });
+  });
 }
 
 function getStatusIcon(status) {
@@ -194,4 +232,210 @@ async function fetchHistory() {
       quantity: parseInt(item.quantity)
     }))
   }));
+}
+
+async function cancelOrder(orderId) {
+  // Show custom confirmation modal instead of browser confirm
+  showCancelConfirmModal(orderId);
+}
+
+function showCancelConfirmModal(orderId) {
+  const modalOverlay = document.createElement('div');
+  modalOverlay.style.cssText = `
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  `;
+
+  const modal = document.createElement('div');
+  modal.style.cssText = `
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    max-width: 350px;
+    width: 85%;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    text-align: center;
+    position: relative;
+  `;
+
+  modal.innerHTML = `
+    <button id="modal-close-x" style="
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #999;
+      cursor: pointer;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      transition: background-color 0.2s;
+    " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">×</button>
+    
+    <div style="margin-bottom: 15px;">
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2" style="margin-bottom: 10px;">
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9 9l6 6M15 9l-6 6"></path>
+      </svg>
+      <h3 style="margin: 0 0 8px 0; color: #ff8c00; font-size: 18px;">Cancel Order</h3>
+      <p style="margin: 0 0 15px 0; color: #666; line-height: 1.4; font-size: 14px;">
+        Are you sure you want to cancel this order?
+      </p>
+    </div>
+    <div style="display: flex; gap: 10px; justify-content: center;">
+      <button id="modal-cancel-btn" style="
+        padding: 10px 20px;
+        background: #6c757d;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      " onmouseover="this.style.backgroundColor='#5a6268'" onmouseout="this.style.backgroundColor='#6c757d'">No, Keep Order</button>
+      <button id="modal-confirm-btn" style="
+        padding: 10px 20px;
+        background: #dc3545;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+      " onmouseover="this.style.backgroundColor='#c82333'" onmouseout="this.style.backgroundColor='#dc3545'">Yes, Cancel Order</button>
+    </div>
+  `;
+
+  modalOverlay.appendChild(modal);
+  document.body.appendChild(modalOverlay);
+
+  // Show modal with animation
+  setTimeout(() => {
+    modalOverlay.style.opacity = '1';
+    modal.style.transform = 'scale(1)';
+  }, 10);
+
+  // Close modal function
+  function closeModal() {
+    modalOverlay.style.opacity = '0';
+    modal.style.transform = 'scale(0.9)';
+    setTimeout(() => {
+      if (modalOverlay.parentNode) {
+        modalOverlay.parentNode.removeChild(modalOverlay);
+      }
+    }, 300);
+  }
+
+  // Add event listeners
+  const cancelBtn = document.getElementById('modal-cancel-btn');
+  const confirmBtn = document.getElementById('modal-confirm-btn');
+  const closeBtn = document.getElementById('modal-close-x');
+  
+  if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  
+  if (confirmBtn) {
+    confirmBtn.addEventListener('click', async () => {
+      closeModal();
+      await performCancelOrder(orderId);
+    });
+  }
+
+  // Close on overlay click
+  modalOverlay.addEventListener('click', (e) => {
+    if (e.target === modalOverlay) {
+      closeModal();
+    }
+  });
+
+  // Close on escape key
+  const escapeHandler = (e) => {
+    if (e.key === 'Escape') {
+      closeModal();
+      document.removeEventListener('keydown', escapeHandler);
+    }
+  };
+  document.addEventListener('keydown', escapeHandler);
+}
+
+async function performCancelOrder(orderId) {
+  try {
+    const response = await fetch('../api/cancel_order.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ orderId: orderId })
+    });
+
+    const result = await response.json();
+    
+    if (response.ok && result.success) {
+      showCancelMessage('Order cancelled successfully', 'success');
+      setTimeout(() => {
+        renderHistory();
+      }, 1000);
+    } else {
+      showCancelMessage(result.error || 'Failed to cancel order', 'error');
+    }
+  } catch (error) {
+    console.error('Error cancelling order:', error);
+    showCancelMessage('Error cancelling order', 'error');
+  }
+}
+
+function showCancelMessage(message, type) {
+  // Use the same toast design as other notifications
+  let toast = document.getElementById('toast');
+  if (!toast) {
+    toast = document.createElement('div');
+    toast.id = 'toast';
+    toast.className = 'toast';
+    document.body.appendChild(toast);
+  }
+  
+  toast.style.cssText = `
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: ${type === 'success' ? '#28a745' : '#dc3545'};
+    color: white;
+    padding: 12px 16px;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    z-index: 10000;
+    font-size: 14px;
+    transform: translateX(100%);
+    transition: transform 0.3s ease;
+  `;
+  
+  toast.textContent = message;
+  toast.classList.remove('show');
+  void toast.offsetWidth;
+  toast.classList.add('show');
+  
+  // Show toast
+  toast.style.transform = 'translateX(0)';
+  
+  // Hide toast
+  setTimeout(() => {
+    toast.style.transform = 'translateX(100%)';
+  }, 4000);
 }

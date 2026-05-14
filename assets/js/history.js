@@ -184,7 +184,7 @@ async function renderHistory() {
   `}).join('');
 
   historyContent.innerHTML = `<div class="orders-list">${ordersHTML}</div>`;
-  
+
   // Add event listeners for cancel buttons
   document.querySelectorAll('.cancel-order-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
@@ -194,7 +194,7 @@ async function renderHistory() {
       console.log('Cancel button clicked for order:', orderId);
       cancelOrder(orderId);
     });
-    
+
     // Add hover effects
     btn.addEventListener('mouseenter', (e) => {
       e.target.style.backgroundColor = '#c82333';
@@ -235,7 +235,6 @@ async function fetchHistory() {
 }
 
 async function cancelOrder(orderId) {
-  // Show custom confirmation modal instead of browser confirm
   showCancelConfirmModal(orderId);
 }
 
@@ -261,8 +260,8 @@ function showCancelConfirmModal(orderId) {
     background: white;
     border-radius: 8px;
     padding: 20px;
-    max-width: 350px;
-    width: 85%;
+    max-width: 320px;
+    width: 90%;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
     transform: scale(0.9);
     transition: transform 0.3s ease;
@@ -288,14 +287,14 @@ function showCancelConfirmModal(orderId) {
       border-radius: 50%;
       transition: background-color 0.2s;
     " onmouseover="this.style.backgroundColor='#f0f0f0'" onmouseout="this.style.backgroundColor='transparent'">×</button>
-    
+
     <div style="margin-bottom: 15px;">
       <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#ff8c00" stroke-width="2" style="margin-bottom: 10px;">
         <circle cx="12" cy="12" r="10"></circle>
         <path d="M9 9l6 6M15 9l-6 6"></path>
       </svg>
-      <h3 style="margin: 0 0 8px 0; color: #ff8c00; font-size: 18px;">Cancel Order</h3>
-      <p style="margin: 0 0 15px 0; color: #666; line-height: 1.4; font-size: 14px;">
+      <h3 style="margin: 0 0 8px 0; color: #ff8c00; font-size: 16px;">Cancel Order</h3>
+      <p style="margin: 0 0 15px 0; color: #666; line-height: 1.4; font-size: 13px;">
         Are you sure you want to cancel this order?
       </p>
     </div>
@@ -328,7 +327,7 @@ function showCancelConfirmModal(orderId) {
   modalOverlay.appendChild(modal);
   document.body.appendChild(modalOverlay);
 
-  // Show modal with animation
+  // Animate in
   setTimeout(() => {
     modalOverlay.style.opacity = '1';
     modal.style.transform = 'scale(1)';
@@ -349,10 +348,10 @@ function showCancelConfirmModal(orderId) {
   const cancelBtn = document.getElementById('modal-cancel-btn');
   const confirmBtn = document.getElementById('modal-confirm-btn');
   const closeBtn = document.getElementById('modal-close-x');
-  
+
   if (cancelBtn) cancelBtn.addEventListener('click', closeModal);
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
-  
+
   if (confirmBtn) {
     confirmBtn.addEventListener('click', async () => {
       closeModal();
@@ -386,7 +385,7 @@ async function performCancelOrder(orderId) {
     });
 
     const result = await response.json();
-    
+
     if (response.ok && result.success) {
       showCancelMessage('Order cancelled successfully', 'success');
       setTimeout(() => {
@@ -402,40 +401,42 @@ async function performCancelOrder(orderId) {
 }
 
 function showCancelMessage(message, type) {
-  // Use the same toast design as other notifications
   let toast = document.getElementById('toast');
   if (!toast) {
     toast = document.createElement('div');
     toast.id = 'toast';
-    toast.className = 'toast';
     document.body.appendChild(toast);
   }
-  
+
+  // Set base styles with toast hidden off-screen to the right
   toast.style.cssText = `
     position: fixed;
     top: 20px;
     right: 20px;
     background: ${type === 'success' ? '#28a745' : '#dc3545'};
     color: white;
-    padding: 12px 16px;
+    padding: 8px 12px;
     border-radius: 6px;
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 10000;
-    font-size: 14px;
-    transform: translateX(100%);
+    font-size: 12px;
+    max-width: 250px;
+    line-height: 1.2;
+    transform: translateX(calc(100% + 20px));
     transition: transform 0.3s ease;
   `;
-  
+
   toast.textContent = message;
-  toast.classList.remove('show');
+
+  // Force reflow so the transition fires from the hidden position
   void toast.offsetWidth;
-  toast.classList.add('show');
-  
-  // Show toast
+
+  // Slide in
   toast.style.transform = 'translateX(0)';
-  
-  // Hide toast
-  setTimeout(() => {
-    toast.style.transform = 'translateX(100%)';
+
+  // Clear any existing hide timer to avoid cutting short a newer toast
+  clearTimeout(toast._hideTimeout);
+  toast._hideTimeout = setTimeout(() => {
+    toast.style.transform = 'translateX(calc(100% + 20px))';
   }, 4000);
 }
